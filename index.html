@@ -1,0 +1,2750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meds LLM - Professional Clinical Intelligence Workspace</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- PDF.js for local PDF rendering and text extraction -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+
+    <!-- Custom Tailwind Configuration for Premium Medical Aesthetic -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        med: {
+                            teal: '#0d9488',     // Professional Clinical Teal
+                            tealDark: '#0f766e', // Deep surgical dark teal
+                            tealLight: '#f0fdfa',// Clean sterile hospital green/teal light bg
+                            accent: '#06b6d4',   // Diagnostics Cyan
+                            accentDark: '#0891b2',
+                            border: '#e2e8f0',
+                            slate: '#0f172a',
+                            paper: '#ffffff',
+                            charcoal: '#334155'
+                        }
+                    },
+                    fontFamily: {
+                        serif: ['Georgia', 'Cambria', '"Times New Roman"', 'Times', 'serif'],
+                        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        .med-header-font {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom scrollbars for professional high-density reading */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        /* Hide scrollbar utility */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        /* Markdown Style inside clinical chat answers */
+        .chat-markdown p { margin-bottom: 0.75rem; line-height: 1.6; }
+        .chat-markdown p:last-child { margin-bottom: 0; }
+        .chat-markdown ul, .chat-markdown ol { margin-left: 1.25rem; margin-bottom: 0.75rem; list-style-type: disc; }
+        .chat-markdown h3 { font-weight: bold; margin-top: 1rem; margin-bottom: 0.5rem; color: #0f172a; border-left: 3px solid #0d9488; padding-left: 8px; }
+        .chat-markdown code { background-color: #f1f5f9; padding: 0.125rem 0.25rem; border-radius: 0.25rem; font-family: monospace; font-size: 0.875rem; }
+        .chat-markdown table { width: 100%; border-collapse: collapse; margin-bottom: 0.75rem; font-size: 0.875rem; }
+        .chat-markdown th, .chat-markdown td { border: 1px solid #e2e8f0; padding: 0.5rem; text-align: left; }
+        .chat-markdown th { background-color: #f8fafc; font-weight: 600; color: #0f172a; }
+
+        /* Highly-Optimized Accessibility Filter */
+        .invert-filter {
+            filter: invert(1) hue-rotate(180deg) contrast(1.25) brightness(1.1) !important;
+        }
+
+        /* High-Contrast modes for reading */
+        .hc-dark-theme {
+            background-color: #000000 !important;
+            color: #fef08a !important; /* Premium High-contrast yellow */
+            border-color: #fef08a !important;
+        }
+        
+        /* High contrast chatbot styles */
+        .high-contrast-chat {
+            background-color: #000000 !important;
+            color: #facc15 !important;
+            border-color: #facc15 !important;
+        }
+        .high-contrast-chat #chat-messages-container {
+            background-color: #000000 !important;
+        }
+        .high-contrast-chat .chat-markdown,
+        .high-contrast-chat .chat-card-bg {
+            background-color: #0c0a09 !important;
+            color: #fef08a !important;
+            border: 2px solid #facc15 !important;
+        }
+        .high-contrast-chat .chat-markdown h3 {
+            color: #facc15 !important;
+            border-left-color: #facc15 !important;
+        }
+        .high-contrast-chat .chat-markdown table,
+        .high-contrast-chat .chat-markdown th,
+        .high-contrast-chat .chat-markdown td {
+            border-color: #facc15 !important;
+            color: #fef08a !important;
+        }
+        .high-contrast-chat .chat-markdown th {
+            background-color: #1c1917 !important;
+        }
+        .high-contrast-chat .chat-markdown code {
+            background-color: #1c1917 !important;
+            color: #facc15 !important;
+            border: 1px solid #facc15 !important;
+        }
+        .high-contrast-chat .bg-med-teal {
+            background-color: #1c1917 !important;
+            color: #fef08a !important;
+            border: 2px solid #facc15 !important;
+        }
+        .high-contrast-chat textarea {
+            background-color: #000000 !important;
+            color: #facc15 !important;
+            border: 2px solid #facc15 !important;
+        }
+        .high-contrast-chat textarea::placeholder {
+            color: #78716c !important;
+        }
+        .high-contrast-chat button {
+            background-color: #1c1917 !important;
+            color: #facc15 !important;
+            border: 2px solid #facc15 !important;
+        }
+        .high-contrast-chat button:hover {
+            background-color: #292524 !important;
+        }
+        .high-contrast-chat .clinical-citation {
+            color: #38bdf8 !important;
+            border-bottom-color: #38bdf8 !important;
+        }
+
+        /* Loading Pulsar */
+        .pulse-light {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: .5; transform: scale(1.1); }
+        }
+
+        /* SVG Health Map Transition Effects */
+        .map-node {
+            transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), r 0.2s ease, stroke-width 0.2s ease;
+        }
+        .map-node:hover {
+            cursor: pointer;
+            filter: brightness(1.15) drop-shadow(0px 4px 10px rgba(0,0,0,0.15));
+        }
+        .map-link {
+            transition: stroke-dasharray 0.5s ease, stroke-width 0.2s ease;
+        }
+        .user-select-none {
+            user-select: none;
+            -webkit-user-select: none;
+        }
+    </style>
+</head>
+<body class="h-screen flex flex-col overflow-hidden text-slate-800">
+
+    <!-- TOP HEADER BAR -->
+    <header class="bg-slate-900 text-white px-4 py-3 flex flex-wrap items-center justify-between border-b-2 border-med-teal shrink-0 gap-3 z-10 shadow-md">
+        <div class="flex items-center space-x-3">
+            <span class="bg-med-teal text-white text-xs font-bold px-2 py-1 rounded tracking-wider flex items-center gap-1">
+                <i data-lucide="shield-check" class="w-3.5 h-3.5"></i> HIPAA Compliant Sandbox
+            </span>
+            <div class="flex flex-col">
+                <h1 class="text-lg md:text-xl font-black tracking-tight med-header-font flex items-center gap-1.5">
+                    <i data-lucide="activity" class="w-5 h-5 text-med-accent animate-pulse"></i>
+                    meds<span class="text-med-accent font-light">LLM</span>
+                </h1>
+                <span class="text-[10px] text-slate-400 -mt-1 tracking-wide uppercase">Multimodal Diagnostic & Clinical Surveillance Workspace</span>
+            </div>
+        </div>
+
+        <!-- Document stats ticker -->
+        <div class="hidden lg:flex items-center space-x-4 text-xs text-slate-300 border-l border-slate-700 pl-4">
+            <div>Engine: <span class="text-med-accent font-mono font-bold">gemini-2.5-flash-multimodal</span></div>
+            <div class="w-1.5 h-1.5 rounded-full bg-slate-500"></div>
+            <div>Active Context: <span id="header-doc-count" class="font-bold">0 reports</span></div>
+        </div>
+
+        <!-- RIGHT SIDE: API Key Controls & Connection Indicator -->
+        <div class="flex items-center gap-2 ml-auto font-sans">
+            <div class="relative flex items-center">
+                <i data-lucide="key" class="w-3.5 h-3.5 absolute left-3 text-slate-400"></i>
+                <input 
+                    type="password" 
+                    id="gemini-api-key" 
+                    placeholder="Enter Optional Key..." 
+                    class="bg-zinc-800 border border-zinc-700 text-xs rounded-l px-8 py-1.5 w-40 md:w-56 text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-med-teal transition-all"
+                />
+                <button 
+                    onclick="validateAndSaveAPIKey()"
+                    class="bg-med-teal hover:bg-med-tealDark text-white text-xs font-medium px-3 py-1.5 rounded-r transition-all"
+                >
+                    Apply
+                </button>
+            </div>
+            
+            <!-- Connection Indicator Button (Automatically Active inside workspace framework) -->
+            <div id="connection-indicator-btn" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded bg-emerald-50 border border-emerald-200 text-emerald-700 transition-all duration-300">
+                <span id="indicator-dot" class="w-2.5 h-2.5 rounded-full bg-emerald-500 pulse-light shadow"></span>
+                <span id="indicator-text" class="text-[11px] font-mono text-emerald-800 select-none">Sandbox Active</span>
+            </div>
+
+            <!-- Mobile Panels Toggle -->
+            <button onclick="toggleMobileMenu()" class="md:hidden p-1 bg-zinc-800 text-white rounded">
+                <i data-lucide="menu" class="w-5 h-5"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- MOBILE OVERLAY NAVIGATION -->
+    <div id="mobile-nav-panel" class="hidden fixed inset-0 bg-black/50 z-40 md:hidden transition-all duration-300">
+        <div class="bg-white w-3/4 max-w-sm h-full flex flex-col p-4 shadow-2xl relative">
+            <button onclick="toggleMobileMenu()" class="absolute top-4 right-4 text-slate-600 hover:text-black">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+            <div class="mt-8 flex flex-col gap-6">
+                <div>
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">View Controls</h3>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="switchMobileView('docs')" class="bg-slate-100 hover:bg-slate-200 text-slate-800 font-medium py-2 px-3 rounded text-sm text-center flex items-center justify-center gap-1">
+                            <i data-lucide="files" class="w-4 h-4"></i> Reports
+                        </button>
+                        <button onclick="switchMobileView('viewer')" class="bg-slate-100 hover:bg-slate-200 text-slate-800 font-medium py-2 px-3 rounded text-sm text-center flex items-center justify-center gap-1">
+                            <i data-lucide="eye" class="w-4 h-4"></i> Viewer
+                        </button>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Workspace Actions</h3>
+                    <button onclick="triggerUpload()" class="w-full bg-med-teal text-white py-2 px-3 rounded text-sm font-semibold flex items-center justify-center gap-2">
+                        <i data-lucide="upload" class="w-4 h-4"></i> Upload File
+                    </button>
+                </div>
+                <div class="border-t pt-4">
+                    <p class="text-xs text-slate-500">Meds LLM operates locally inside your browser. Your API Key is sent safely to Google Gemini API.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN GRID CONTAINER -->
+    <main class="flex-1 flex overflow-hidden relative">
+
+        <!-- LEFT SIDEBAR: Medical Document Repository & Selectors -->
+        <aside id="left-sidebar" class="w-80 border-r border-slate-200 bg-white flex flex-col shrink-0 transition-transform duration-300 md:translate-x-0 absolute md:static inset-y-0 left-0 z-30 -translate-x-full">
+            
+            <!-- Section Header -->
+            <div class="p-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+                <div class="flex items-center gap-1.5">
+                    <i data-lucide="folder-open" class="w-4 h-4 text-med-teal"></i>
+                    <h2 class="font-bold text-xs uppercase tracking-wider text-slate-700 font-sans">Clinical Library</h2>
+                </div>
+                <!-- Selection counter -->
+                <span id="select-counter" class="text-[10px] font-semibold bg-slate-200 text-slate-700 px-2 py-0.5 rounded-full">0 Selected</span>
+            </div>
+
+            <!-- Drag & Drop Upload Zone -->
+            <div class="p-3 border-b border-slate-200 bg-slate-50/40">
+                <div 
+                    id="dropzone"
+                    class="border-2 border-dashed border-slate-300 hover:border-med-teal rounded-lg p-4 text-center cursor-pointer transition-all bg-white hover:bg-teal-50/10 flex flex-col items-center justify-center"
+                    onclick="triggerUpload()"
+                >
+                    <i data-lucide="cloud-upload" class="w-8 h-8 text-slate-400 mb-1"></i>
+                    <p class="text-xs font-medium text-slate-700 font-sans">Drag & Drop Scans or PDFs</p>
+                    <p class="text-[10px] text-slate-400 mt-1 font-sans">Accepts PDF, TXT, PNG, JPG (Max 15MB)</p>
+                    <input 
+                        type="file" 
+                        id="file-input" 
+                        multiple 
+                        accept=".pdf,.txt,.png,.jpg,.jpeg" 
+                        class="hidden" 
+                        onchange="handleFileSelect(event)"
+                    />
+                </div>
+                
+                <!-- Quick manual copy-paste option for reports -->
+                <button 
+                    onclick="showManualEntryModal()"
+                    class="mt-2 w-full border border-slate-200 text-slate-600 hover:text-med-teal hover:bg-slate-50 rounded py-1.5 px-3 text-xs font-medium flex items-center justify-center gap-1.5 transition-all"
+                >
+                    <i data-lucide="plus" class="w-3.5 h-3.5"></i> Paste Diagnostic Narrative
+                </button>
+            </div>
+
+            <!-- List of Uploaded/Imported Documents -->
+            <div class="flex-1 overflow-y-auto p-2 space-y-2" id="document-list">
+                <!-- Fallback empty state -->
+                <div id="no-documents-placeholder" class="text-center py-12 px-4">
+                    <i data-lucide="shield-alert" class="w-8 h-8 text-slate-300 mx-auto mb-2"></i>
+                    <p class="text-xs font-medium text-slate-500">No medical files loaded</p>
+                    <p class="text-[10px] text-slate-400 mt-1 font-sans">Upload clinical trial papers, pathology results, discharge summaries, or general health reports & scans to analyze them.</p>
+                </div>
+            </div>
+
+            <!-- Quick Template Clinical Report Loader -->
+            <div class="p-3 bg-slate-50 border-t border-slate-200 space-y-2">
+                <span class="text-[10px] uppercase font-bold tracking-wider text-slate-400 block font-sans">Sample Scans & Labs</span>
+                <div class="grid grid-cols-2 gap-2 font-sans">
+                    <button 
+                        onclick="loadSampleReport('clinical-study')" 
+                        class="border border-slate-200 hover:border-slate-400 hover:bg-white text-[10px] font-semibold p-1.5 rounded transition-all text-slate-700 text-left line-clamp-1"
+                        title="Load Sample Clinical Trial Report"
+                    >
+                        🔬 Trial Study Text
+                    </button>
+                    <button 
+                        onclick="loadSampleReport('pathology')" 
+                        class="border border-slate-200 hover:border-slate-400 hover:bg-white text-[10px] font-semibold p-1.5 rounded transition-all text-slate-700 text-left line-clamp-1"
+                        title="Load Sample Blood Pathology Lab Results"
+                    >
+                        🩸 Blood Labs Text
+                    </button>
+                    <button 
+                        onclick="loadSampleReport('chest-xray-scan')" 
+                        class="border border-slate-200 hover:border-slate-400 hover:bg-white text-[10px] font-bold p-1.5 rounded transition-all text-med-teal text-left line-clamp-1 flex items-center gap-1"
+                        title="Load Simulated Diagnostic Chest X-ray scan"
+                    >
+                        🩻 Chest X-Ray Scan
+                    </button>
+                    <button 
+                        onclick="loadSampleReport('mri-brain-scan')" 
+                        class="border border-slate-200 hover:border-slate-400 hover:bg-white text-[10px] font-bold p-1.5 rounded transition-all text-med-teal text-left line-clamp-1 flex items-center gap-1"
+                        title="Load Simulated Diagnostic Brain MRI scan"
+                    >
+                        🧠 Brain MRI Scan
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- CENTER PANEL: Unified Document, PDF & Health Map Viewer -->
+        <section id="center-viewer-panel" class="flex-1 bg-slate-50 flex flex-col overflow-hidden relative min-w-0">
+            
+            <!-- Viewer Controls Header -->
+            <div class="h-12 bg-white border-b border-slate-200 px-4 flex items-center justify-between shrink-0">
+                <div class="flex items-center space-x-2 min-w-0">
+                    <i data-lucide="eye" class="w-4 h-4 text-med-teal shrink-0"></i>
+                    <h2 class="font-bold text-xs uppercase tracking-wider text-slate-700 truncate font-sans" id="viewer-active-title">
+                        No Document Displayed
+                    </h2>
+                </div>
+                
+                <!-- View Option Utilities -->
+                <div class="flex items-center space-x-1.5 font-sans">
+                    <button 
+                        onclick="switchViewerTab('formatted')" 
+                        id="tab-btn-formatted" 
+                        class="px-2.5 py-1 text-xs font-semibold rounded bg-med-teal text-white transition-all shadow-sm"
+                    >
+                        Interactive Preview
+                    </button>
+                    <button 
+                        onclick="switchViewerTab('raw')" 
+                        id="tab-btn-raw" 
+                        class="px-2.5 py-1 text-xs font-semibold rounded bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all"
+                    >
+                        Original Preview & Accessibility
+                    </button>
+                    <button 
+                        onclick="switchViewerTab('map')" 
+                        id="tab-btn-map" 
+                        class="px-2.5 py-1 text-xs font-bold rounded bg-slate-100 text-slate-700 hover:bg-slate-200 transition-all flex items-center gap-1 border border-slate-300"
+                    >
+                        <i data-lucide="git-branch" class="w-3.5 h-3.5 text-med-teal"></i> Diagnostic Map
+                    </button>
+                </div>
+            </div>
+
+            <!-- PDF/Document/HealthMap Display Workspace -->
+            <div class="flex-1 overflow-y-auto p-4 flex flex-col justify-start relative" id="viewer-canvas-container">
+                
+                <!-- 1. Format Viewer Viewports -->
+                <div id="viewport-formatted" class="w-full max-w-3xl mx-auto bg-white border border-slate-200 shadow-sm rounded-lg p-6 md:p-8 min-h-[90%] relative overflow-x-hidden">
+                    <!-- Default State when no document loaded -->
+                    <div id="viewer-empty-state" class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
+                        <i data-lucide="file-text" class="w-16 h-16 text-slate-200 mb-4 animate-bounce"></i>
+                        <h3 class="text-base font-bold text-slate-700 font-sans">Workspace Medical Viewer</h3>
+                        <p class="text-xs text-slate-400 mt-2 max-w-sm font-sans">
+                            Select an uploaded medical report or diagnostic scan from the left panel to examine its structural insights and clinical content.
+                        </p>
+                        <div class="mt-4 flex flex-wrap gap-2 justify-center font-sans">
+                            <button onclick="triggerUpload()" class="bg-slate-800 hover:bg-slate-700 text-white text-xs px-3 py-1.5 rounded flex items-center gap-1.5 transition-all">
+                                <i data-lucide="upload" class="w-3.5 h-3.5"></i> Upload Diagnostic File
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Rendered Document Viewport -->
+                    <div id="rendered-document-content" class="hidden font-serif select-text">
+                        <!-- Top academic meta (Medical style layout) -->
+                        <div class="border-b-2 border-slate-800 pb-4 mb-6">
+                            <span class="text-[10px] uppercase font-bold text-med-teal tracking-widest font-sans" id="doc-meta-category">Medical Report Artifact</span>
+                            <h2 class="text-xl md:text-2xl font-bold text-slate-900 mt-1" id="doc-meta-title">Diagnostic Findings</h2>
+                            <div class="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500 font-sans">
+                                <div><strong class="text-slate-700 font-sans">File Source:</strong> <span id="doc-meta-filename">Report</span></div>
+                                <div><strong class="text-slate-700 font-sans">Size:</strong> <span id="doc-meta-size">0 KB</span></div>
+                                <div><strong class="text-slate-700 font-sans">Words Extracted:</strong> <span id="doc-meta-words">0 words</span></div>
+                            </div>
+                        </div>
+
+                        <!-- PDF Page Render Canvas Frame -->
+                        <div id="pdf-rendering-container" class="hidden mb-6 border border-slate-101 bg-slate-100 rounded p-1 flex flex-col items-center justify-center">
+                            <div class="flex items-center gap-2 justify-between w-full px-2 py-1 bg-white border-b border-slate-200 rounded-t text-xs font-sans">
+                                <span class="text-slate-600 font-medium">Local High-Fidelity PDF Preview</span>
+                                <div class="flex items-center gap-1.5">
+                                    <button onclick="changePDFPage(-1)" class="p-1 hover:bg-slate-100 rounded text-slate-600"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>
+                                    <span>Page <span id="pdf-current-page">1</span> of <span id="pdf-total-pages">1</span></span>
+                                    <button onclick="changePDFPage(1)" class="p-1 hover:bg-slate-100 rounded text-slate-600"><i data-lucide="chevron-right" class="w-4 h-4"></i></button>
+                                </div>
+                            </div>
+                            <div class="w-full bg-slate-50 overflow-auto flex justify-center p-2">
+                                <canvas id="pdf-canvas" class="max-w-full shadow-md"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Visual representation of Image uploads if selected -->
+                        <div id="image-preview-container" class="hidden mb-6 border border-slate-200 rounded p-1 max-h-96 overflow-hidden flex flex-col items-center justify-center bg-slate-900">
+                            <div class="flex items-center justify-between w-full px-3 py-1.5 bg-slate-800 text-xs text-slate-300 rounded-t border-b border-slate-700 font-sans">
+                                <span class="font-semibold text-med-accent flex items-center gap-1">
+                                    <i data-lucide="scan"></i> Medical Scan Interface (Active Multimodal Payload)
+                                </span>
+                                <span>100% Zoom</span>
+                            </div>
+                            <div class="p-4 bg-black w-full flex justify-center">
+                                <img id="viewer-image-element" src="" class="max-w-full max-h-80 object-contain shadow-sm border border-slate-800" alt="Diagnostic Medical Scan Preview">
+                            </div>
+                        </div>
+
+                        <!-- Extracted text contents rendering with clinical highlights -->
+                        <div class="prose max-w-none text-slate-800 text-sm md:text-base leading-relaxed whitespace-pre-line" id="doc-text-body">
+                            <!-- Populated on selecting a report -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Original Preview with Zoom/Accessibility Mode panel -->
+                <div id="viewport-raw" class="hidden w-full max-w-3xl mx-auto bg-slate-100 border border-slate-200 rounded-lg p-6 flex flex-col gap-4 min-h-[90%]">
+                    
+                    <!-- Accessibility Control Toolbar -->
+                    <div class="bg-white border border-slate-200 p-3 rounded-lg flex flex-wrap items-center justify-between gap-3 font-sans shrink-0 shadow-sm">
+                        <span class="text-xs font-bold text-slate-700 flex items-center gap-1">
+                            <i data-lucide="accessibility" class="text-med-teal w-4 h-4"></i> Low Vision Accessibility Panel
+                        </span>
+                        
+                        <!-- Control Actions -->
+                        <div class="flex flex-wrap items-center gap-2">
+                            <!-- Zoom Group -->
+                            <div class="flex items-center bg-slate-100 rounded-md p-0.5 border border-slate-200">
+                                <button onclick="adjustPreviewZoom(-0.1)" class="p-1 hover:bg-slate-200 rounded text-slate-700 text-xs font-bold flex items-center gap-1" title="Zoom Out">
+                                    <i data-lucide="zoom-out" class="w-3.5 h-3.5"></i>
+                                </button>
+                                <span id="preview-zoom-indicator" class="text-xs font-mono font-bold text-slate-600 px-2 select-none">100%</span>
+                                <button onclick="adjustPreviewZoom(0.1)" class="p-1 hover:bg-slate-200 rounded text-slate-700 text-xs font-bold flex items-center gap-1" title="Zoom In">
+                                    <i data-lucide="zoom-in" class="w-3.5 h-3.5"></i>
+                                </button>
+                            </div>
+
+                            <!-- Contrast Toggles -->
+                            <div class="flex items-center bg-slate-100 rounded-md p-0.5 border border-slate-200 text-xs">
+                                <button onclick="setAccessibilityTheme('normal')" id="btn-theme-normal" class="px-2 py-1 rounded bg-white shadow-sm font-semibold text-slate-800">
+                                    Normal
+                                </button>
+                                <button onclick="setAccessibilityTheme('dark-yellow')" id="btn-theme-dark-yellow" class="px-2 py-1 rounded hover:bg-slate-200 font-semibold text-slate-700">
+                                    Contrast Dark
+                                </button>
+                            </div>
+
+                            <!-- Image Inversion filter specifically for radiology / low visibility scans -->
+                            <button onclick="toggleInvertFilter()" id="btn-invert-scans" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded text-xs font-bold text-slate-700 flex items-center gap-1">
+                                <i data-lucide="eye-off" class="w-3.5 h-3.5 text-med-teal"></i> Invert Diagnostic Scan
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Rendering Viewport Container -->
+                    <div id="preview-accessibility-pane" class="flex-1 rounded-lg border border-slate-200 p-6 overflow-auto bg-white transition-all max-h-[600px] shadow-inner">
+                        
+                        <!-- Empty warning if no doc loaded -->
+                        <div id="acc-empty-state" class="text-center py-12">
+                            <i data-lucide="accessibility" class="w-12 h-12 mx-auto text-slate-300 mb-2"></i>
+                            <h3 class="text-sm font-bold text-slate-600">No Document Selected</h3>
+                            <p class="text-xs text-slate-400 mt-1 max-w-sm mx-auto">Load a clinical trial, Blood lab report, or diagnostic scan first to interact in the High Legibility mode.</p>
+                        </div>
+
+                        <div id="acc-text-container" class="hidden whitespace-pre-wrap select-all font-sans leading-relaxed">
+                            <!-- Rendered extracted text -->
+                        </div>
+
+                        <!-- High Contrast Image / Scan Frame -->
+                        <div id="acc-image-container" class="hidden flex flex-col items-center justify-center p-4 bg-slate-950 rounded-lg border border-slate-800 overflow-hidden">
+                            <img id="acc-image-element" src="" class="max-w-full max-h-[400px] object-contain transition-all" alt="High Contrast Scan Preview">
+                        </div>
+
+                        <!-- High Contrast PDF Frame -->
+                        <div id="acc-pdf-container" class="hidden flex flex-col items-center justify-center p-4 bg-slate-950 rounded-lg border border-slate-800 overflow-hidden">
+                            <div class="flex items-center gap-1.5 mb-2 bg-slate-900 px-3 py-1 rounded text-xs text-slate-300">
+                                <button onclick="changePDFPage(-1)" class="p-1 hover:bg-slate-800 rounded text-slate-300"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>
+                                <span>Page <span id="acc-pdf-current-page">1</span> of <span id="acc-pdf-total-pages">1</span></span>
+                                <button onclick="changePDFPage(1)" class="p-1 hover:bg-slate-800 rounded text-slate-300"><i data-lucide="chevron-right" class="w-4 h-4"></i></button>
+                            </div>
+                            <canvas id="acc-pdf-canvas" class="max-w-full shadow-md transition-all"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. Health Map Viewport (Interactive medical network map) -->
+                <div id="viewport-map" class="hidden w-full h-[600px] md:h-full min-h-[500px] relative bg-slate-950 border border-slate-800 rounded-lg flex flex-col overflow-hidden font-sans">
+                    
+                    <!-- Map Controls overlay panel -->
+                    <div class="absolute top-3 left-3 z-20 flex flex-col gap-2">
+                        <!-- Navigation zoom controls -->
+                        <div class="bg-slate-900/95 border border-slate-800 backdrop-blur-sm rounded-lg p-1.5 flex flex-col gap-1 shadow-lg">
+                            <button onclick="zoomMap(1.2)" class="p-1.5 text-slate-300 hover:text-white hover:bg-slate-800 rounded transition-all" title="Zoom In">
+                                <i data-lucide="zoom-in" class="w-4 h-4"></i>
+                            </button>
+                            <button onclick="zoomMap(0.8)" class="p-1.5 text-slate-300 hover:text-white hover:bg-slate-800 rounded transition-all" title="Zoom Out">
+                                <i data-lucide="zoom-out" class="w-4 h-4"></i>
+                            </button>
+                            <button onclick="resetMapTransform()" class="p-1.5 text-slate-300 hover:text-white hover:bg-slate-800 rounded transition-all border-t border-slate-800" title="Reset Map Centering">
+                                <i data-lucide="maximize" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+
+                        <!-- Graph interaction status modes -->
+                        <div id="map-interaction-status" class="bg-slate-900/90 border border-slate-800 backdrop-blur-sm rounded-lg px-2.5 py-1 text-[10px] text-slate-400 font-mono flex items-center gap-1.5 shadow-md">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                            <span id="map-target-indicator">ACTIVE DOCUMENT NETWORK MAP</span>
+                        </div>
+                    </div>
+
+                    <!-- AI Key Connection warning for dynamic graph generation -->
+                    <div id="map-ai-status-overlay" class="absolute top-3 right-3 z-20">
+                        <button onclick="triggerAIGraphGeneration()" id="map-ai-gen-btn" class="bg-med-teal hover:bg-med-tealDark text-white font-semibold text-xs py-1.5 px-3 rounded-lg shadow-lg flex items-center gap-1.5 transition-all">
+                            <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                            <span>Refine with Gemini AI</span>
+                        </button>
+                    </div>
+
+                    <!-- Empty state notification inside map viewport -->
+                    <div id="map-empty-state" class="absolute inset-0 bg-slate-950 flex flex-col items-center justify-center text-center p-6 z-10">
+                        <i data-lucide="git-branch" class="w-12 h-12 text-slate-700 mb-2"></i>
+                        <h4 class="text-sm font-bold text-slate-300">No Document Selected</h4>
+                        <p class="text-xs text-slate-500 mt-1 max-w-sm font-sans">Select an active clinical document or scan from the library to auto-construct its visual knowledge map.</p>
+                    </div>
+
+                    <!-- Interactive SVG Canvas Area -->
+                    <div id="map-canvas-container" class="flex-1 w-full h-full relative overflow-hidden bg-slate-950 cursor-grab active:cursor-grabbing">
+                        <svg id="health-map-svg" class="w-full h-full select-none" pointer-events="all">
+                            <!-- Background pattern of diagnostic crosshairs -->
+                            <defs>
+                                <pattern id="diag-grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                                    <circle cx="2" cy="2" r="1" fill="#14b8a6" fill-opacity="0.1" />
+                                    <line x1="0" y1="0" x2="0" y2="40" stroke="#0f172a" stroke-width="0.5" />
+                                    <line x1="0" y1="0" x2="40" y2="0" stroke="#0f172a" stroke-width="0.5" />
+                                </pattern>
+                            </defs>
+                            <rect width="100%" height="100%" fill="url(#diag-grid)" />
+                            
+                            <!-- Master transform container for zoom & pan -->
+                            <g id="map-view-group">
+                                <g id="map-links-group"></g>
+                                <g id="map-nodes-group"></g>
+                            </g>
+                        </svg>
+                    </div>
+
+                    <!-- SLIDE OUT DRAWER: Node Description & Metadata Inspector -->
+                    <div id="node-inspector-drawer" class="absolute bottom-0 inset-x-0 h-48 bg-slate-900 border-t border-slate-800 transform translate-y-full transition-transform duration-300 ease-in-out z-30 flex flex-col">
+                        <div class="bg-slate-950 px-4 py-2 flex items-center justify-between border-b border-slate-800">
+                            <div class="flex items-center gap-1.5">
+                                <span id="node-type-badge" class="px-2 py-0.5 text-[9px] font-bold uppercase rounded font-mono">NODE</span>
+                                <h4 id="node-label-title" class="text-xs font-bold text-white tracking-wide">Select Node</h4>
+                            </div>
+                            <button onclick="closeNodeInspector()" class="text-slate-400 hover:text-white p-1">
+                                <i data-lucide="x" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                        <div class="flex-1 overflow-y-auto p-4 grid grid-cols-1 md:grid-cols-3 gap-4 text-slate-300">
+                            <div class="space-y-1">
+                                <span class="text-[9px] uppercase font-bold text-slate-500 tracking-wider block">Description</span>
+                                <p id="node-desc-text" class="text-xs leading-relaxed text-slate-300">No descriptive text loaded.</p>
+                            </div>
+                            <div class="space-y-1 border-t md:border-t-0 md:border-l border-slate-800 pt-2 md:pt-0 md:pl-4">
+                                <span class="text-[9px] uppercase font-bold text-slate-500 tracking-wider block">Associated Indicators & Signals</span>
+                                <div id="node-symptoms-list" class="flex flex-wrap gap-1 mt-1">
+                                    <span class="text-[10px] text-slate-500 italic">None specified</span>
+                                </div>
+                            </div>
+                            <div class="space-y-1 border-t md:border-t-0 md:border-l border-slate-800 pt-2 md:pt-0 md:pl-4">
+                                <span class="text-[9px] uppercase font-bold text-slate-500 tracking-wider block">Clinical Conditions / Complications</span>
+                                <div id="node-illnesses-list" class="flex flex-wrap gap-1 mt-1">
+                                    <span class="text-[10px] text-slate-500 italic">None specified</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Map Legend overlay -->
+                    <div class="absolute bottom-3 right-3 z-20 bg-slate-900/90 border border-slate-800 backdrop-blur-sm rounded-lg p-2 flex flex-col gap-1 shadow-md text-[10px] font-mono font-medium text-slate-400">
+                        <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-teal-500 block"></span> Clinical Focus / Patient</div>
+                        <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-red-400 block"></span> Identified Pathology / Risk</div>
+                        <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-amber-500 block"></span> Presenting Symptom</div>
+                        <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-cyan-400 block"></span> Organic Defect / Deficiency</div>
+                        <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 block"></span> Active Intervention / Rx</div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- RIGHT SIDEBAR: Advanced Chat Assistant (Interacts with Gemini) -->
+        <aside id="right-chat-sidebar" class="w-96 border-l border-slate-200 bg-white flex flex-col shrink-0 transition-all duration-300 md:translate-x-0 absolute md:static inset-y-0 right-0 z-30 translate-x-full font-sans">
+            
+            <!-- Chat Title & Selected Context Header -->
+            <div class="p-3 bg-slate-50 border-b border-slate-200 flex flex-col gap-1 shrink-0">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-1.5">
+                        <i data-lucide="bot" class="w-4.5 h-4.5 text-med-teal"></i>
+                        <h2 class="font-bold text-xs uppercase tracking-wider text-slate-700">Meds AI Chatbot</h2>
+                    </div>
+                    
+                    <div class="flex items-center gap-1">
+                        <!-- High Contrast Toggle for Chat Panel -->
+                        <button 
+                            onclick="toggleChatHighContrast()" 
+                            id="chat-contrast-btn" 
+                            class="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded text-[10px] font-bold flex items-center gap-1 transition-all"
+                            title="Toggle High Contrast Chat Mode"
+                        >
+                            A±
+                        </button>
+                        <!-- Model identity badge -->
+                        <span class="text-[10px] px-1.5 py-0.5 rounded bg-teal-500/10 text-med-teal font-mono font-bold">gemini-2.5-flash</span>
+                    </div>
+                </div>
+                <!-- Interactive scope display -->
+                <div class="text-[10px] text-slate-500 bg-white border border-slate-200 px-2 py-1 rounded mt-1.5 flex items-center justify-between font-medium">
+                    <span class="truncate pr-1">
+                        Active scope: <strong id="chat-scope-label">No Active Documents Included</strong>
+                    </span>
+                    <button onclick="autoSelectAllDocs()" class="text-med-teal hover:underline font-semibold shrink-0">Use All</button>
+                </div>
+            </div>
+
+            <!-- Chat Message Feed -->
+            <div id="chat-messages-container" class="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50/30">
+                
+                <!-- Welcome greeting -->
+                <div class="flex gap-3 max-w-[85%]">
+                    <div class="w-7 h-7 rounded-full bg-slate-800 text-white flex items-center justify-center font-bold text-xs shrink-0 font-serif">M</div>
+                    <div class="bg-white border border-slate-200 p-3 rounded-lg rounded-tl-none shadow-sm text-xs md:text-sm text-slate-700 chat-markdown chat-card-bg">
+                        <p><strong>Welcome to Meds LLM Clinical Surveillance Workspace!</strong></p>
+                        <p>We have updated the system with **Premium Inline Citations** & **Built-in Speech Recognition**:</p>
+                        <ul class="list-disc pl-4 space-y-1">
+                            <li>Provide your <strong>Gemini API Key</strong> in the header (optional) or let the sandbox handle connection automatically.</li>
+                            <li>When the AI answers a query, look for **teal-colored dashed words**. Clicking them opens the source document viewer and highlights the supporting passage instantly!</li>
+                            <li>For motor accessibility, click the **Microphone icon** in the input tray below to narrate your medical prompt.</li>
+                        </ul>
+                        <div class="mt-3 flex flex-col gap-1.5">
+                            <span class="text-[11px] text-slate-500 font-medium font-sans">Try these clinical query presets:</span>
+                            <button onclick="setQueryPreset('Identify and interpret all primary clinical findings shown on the active diagnostic medical scan image, noting specific areas of density, lesions, or structural anomalies.')" class="text-left text-[11px] text-med-teal hover:underline block truncate">🩻 Analyze Diagnostic Scan Image</button>
+                            <button onclick="setQueryPreset('Summarize the primary diagnosis, clinical findings, and recommended surveillance or intervention next steps across all active files.')" class="text-left text-[11px] text-med-teal hover:underline block truncate">📋 Surveillance Clinical Summary</button>
+                            <button onclick="setQueryPreset('Identify and extract all critical abnormal laboratory results, extreme test values, or warning markers, displaying them in a structured table format with reference ranges.')" class="text-left text-[11px] text-med-teal hover:underline block truncate">⚠️ Extract Critical Anomalies</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dynamic Chat Content will stream in here -->
+            </div>
+
+            <!-- Dynamic Thinking indicator -->
+            <div id="chat-thinking-indicator" class="hidden px-4 py-2 bg-slate-100 border-t border-slate-200 text-xs text-slate-500 items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-med-teal pulse-light"></span>
+                <span>Gemini 2.5 is interpreting your medical documents and scans...</span>
+            </div>
+
+            <!-- Chat Action Tray (Query suggestions) -->
+            <div class="px-3 py-1 bg-white border-t border-slate-101 flex items-center gap-1 overflow-x-auto no-scrollbar whitespace-nowrap font-sans">
+                <button onclick="setQueryPreset('Identify and analyze visual findings on the selected diagnostic scan.')" class="bg-slate-100 hover:bg-slate-200 text-[10px] text-slate-600 px-2 py-1 rounded transition-all font-medium">
+                    🩻 Analyze Active Scan
+                </button>
+                <button onclick="setQueryPreset('Draft a professional clinical discharge summary for these materials.')" class="bg-slate-100 hover:bg-slate-200 text-[10px] text-slate-600 px-2 py-1 rounded transition-all font-medium">
+                    ✍️ Draft Discharge Note
+                </button>
+                <button onclick="setQueryPreset('Cross-examine documents for any conflicting data or lab discrepancies.')" class="bg-slate-100 hover:bg-slate-200 text-[10px] text-slate-600 px-2 py-1 rounded transition-all font-medium">
+                    🔍 Detect Contradictions
+                </button>
+            </div>
+
+            <!-- Chat Inputs Form with Microphone Speech option -->
+            <div class="p-3 bg-white border-t border-slate-200 flex items-end gap-2 shrink-0">
+                <button 
+                    onclick="toggleSpeechRecognition()" 
+                    id="mic-record-btn" 
+                    class="bg-slate-100 hover:bg-slate-200 text-slate-600 p-2.5 rounded flex items-center justify-center transition-all h-[36px] border border-slate-200"
+                    title="Speak / Narrate prompt instead of typing"
+                >
+                    <i id="mic-icon" data-lucide="mic" class="w-4 h-4"></i>
+                </button>
+                
+                <div class="flex-1 relative">
+                    <textarea 
+                        id="chat-input-textarea" 
+                        rows="2" 
+                        placeholder="Ask medical questions, query symptoms..." 
+                        class="w-full border border-slate-200 rounded p-2 text-xs focus:outline-none focus:ring-1 focus:ring-med-teal resize-none pr-8 font-sans"
+                        onkeydown="handleChatKeyDown(event)"
+                    ></textarea>
+                    <button 
+                        onclick="clearChatHistory()" 
+                        class="absolute right-2 bottom-2 text-slate-400 hover:text-red-500 p-1"
+                        title="Clear conversation history"
+                    >
+                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                    </button>
+                </div>
+                <button 
+                    onclick="submitChatMessage()" 
+                    id="chat-send-btn"
+                    class="bg-slate-800 hover:bg-slate-700 text-white p-2 rounded flex items-center justify-center transition-all h-[36px]"
+                >
+                    <i data-lucide="send-horizontal" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </aside>
+
+    </main>
+
+    <!-- MOBILE TAB NAVIGATION SELECTOR AT BOTTOM -->
+    <footer class="md:hidden h-14 bg-white border-t border-slate-200 grid grid-cols-3 shrink-0 select-none z-10 font-sans">
+        <button onclick="toggleMobileTab('docs')" id="m-tab-docs" class="flex flex-col items-center justify-center text-med-teal">
+            <i data-lucide="folder-search" class="w-5 h-5"></i>
+            <span class="text-[10px] font-semibold mt-0.5">Documents</span>
+        </button>
+        <button onclick="toggleMobileTab('viewer')" id="m-tab-viewer" class="flex flex-col items-center justify-center text-slate-500">
+            <i data-lucide="file-text" class="w-5 h-5"></i>
+            <span class="text-[10px] font-semibold mt-0.5">Report Viewer</span>
+        </button>
+        <button onclick="toggleMobileTab('chat')" id="m-tab-chat" class="flex flex-col items-center justify-center text-slate-500">
+            <div class="relative">
+                <i data-lucide="message-square" class="w-5 h-5"></i>
+                <span id="unread-chat-dot" class="hidden absolute -top-1 -right-1 w-2 h-2 rounded-full bg-med-teal"></span>
+            </div>
+            <span class="text-[10px] font-semibold mt-0.5">Meds Chat</span>
+        </button>
+    </footer>
+
+    <!-- MODAL: MANUAL CLINICAL REPORT ENTRY -->
+    <div id="manual-modal" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center p-4 z-50 font-sans">
+        <div class="bg-white rounded-lg shadow-xl border border-slate-200 w-full max-w-lg overflow-hidden flex flex-col">
+            <div class="bg-slate-50 border-b border-slate-101 p-4 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="clipboard-list" class="w-5 h-5 text-med-teal"></i>
+                    <h3 class="font-bold text-sm text-slate-800 font-serif">Paste Raw Clinical Report</h3>
+                </div>
+                <button onclick="hideManualEntryModal()" class="text-slate-400 hover:text-slate-600">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div class="p-4 space-y-4 flex-1">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Report Title / Patient Identifier</label>
+                    <input 
+                        type="text" 
+                        id="manual-title" 
+                        placeholder="e.g. Lab Pathology - Patient John Doe (06/2026)" 
+                        class="w-full border border-slate-200 rounded p-2 text-xs focus:outline-none focus:ring-1 focus:ring-med-teal"
+                    />
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Clinical Transcript Contents</label>
+                    <textarea 
+                        id="manual-text" 
+                        rows="8" 
+                        placeholder="Paste blood values, MRI transcripts, oncology reports..." 
+                        class="w-full border border-slate-200 rounded p-2 text-xs focus:outline-none focus:ring-1 focus:ring-med-teal font-mono"
+                    ></textarea>
+                </div>
+            </div>
+            <div class="bg-slate-50 border-t border-slate-101 px-4 py-3 flex justify-end gap-2">
+                <button onclick="hideManualEntryModal()" class="px-3 py-1.5 border border-slate-200 rounded text-xs font-medium text-slate-600 hover:bg-slate-100">Cancel</button>
+                <button onclick="saveManualEntry()" class="px-4 py-1.5 bg-med-teal hover:bg-med-tealDark text-white rounded text-xs font-semibold">Incorporate Report</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN JAVASCRIPT SYSTEM -->
+    <script>
+        // Defensively build UUID to prevent failure in non-secure local environments
+        const generateUUID = () => {
+            return typeof crypto.randomUUID !== 'undefined' ? crypto.randomUUID() : Math.random().toString(36).substring(2, 15);
+        };
+
+        // State variables
+        let database = []; // Store clinical documents
+        let selectedDocId = null; // Currently viewed document
+        let chatHistory = []; // Conversation history with Gemini
+        let geminiAPIKey = ""; // Store user's API key (optional)
+        let currentViewerTab = 'formatted'; // 'formatted', 'raw', or 'map'
+        let currentPdfObject = null; // Stored reference for the current PDF file being rendered
+        let pdfPageNum = 1;
+        let pdfTotalPages = 1;
+
+        // Accessibility zoom and contrast preferences
+        let previewZoomLevel = 1.0;
+        let activeContrastTheme = 'normal'; // 'normal', 'dark-yellow'
+        let activeInvertFilter = false;
+
+        let chatHighContrastActive = false;
+
+        // Speech Recognition state
+        let recognition = null;
+        let isRecordingSpeech = false;
+
+        // Health Map interactive matrix state
+        let mapScale = 1;
+        let mapTranslateX = 0;
+        let mapTranslateY = 0;
+        let isMapPanning = false;
+        let mapPanStartX = 0;
+        let mapPanStartY = 0;
+        let selectedNodeData = null;
+
+        // Precalculated high-fidelity maps for default sample reports
+        const staticSampleMaps = {
+            'clinical-study': {
+                nodes: [
+                    { id: 'root', label: 'NSCLC Clinical Study', type: 'patient', description: 'Evaluation of Pembrolizumab as first-line therapy for patients with advanced Non-Small Cell Lung Cancer and high PD-L1 expression (TPS >= 50%).', symptoms: ['Metastatic Carcinoma'], illnesses: ['Metastatic Lung Carcinoma'], deficiencies: [] },
+                    { id: 'drug', label: 'Pembrolizumab Infusion', type: 'intervention', description: '200mg IV biological therapy administered every three weeks as primary baseline therapeutic regimen.', symptoms: [], illnesses: [], deficiencies: [] },
+                    { id: 'outcome_os', label: 'Overall Survival (26.3m)', type: 'intervention', description: 'Median Overall Survival achieved 26.3 months compared to standard platinum doublet chemotherapy benchmark.', symptoms: [], illnesses: [], deficiencies: [] },
+                    { id: 'outcome_pfs', label: 'PFS (10.3m)', type: 'intervention', description: 'Median Progression-Free Survival calculated at 10.3 months.', symptoms: [], illnesses: [], deficiencies: [] },
+                    { id: 'outcome_orr', label: 'Objective Response (44.8%)', type: 'intervention', description: '44.8% objective response demonstrated across the clinical subject cohort.', symptoms: [], illnesses: [], deficiencies: [] },
+                    { id: 'complication_colitis', label: 'Immune Colitis (3.1%)', type: 'illness', description: 'Immunological inflammation of the colon occurring as an adverse side effect in 3.1% of patients.', symptoms: ['Abdominal pain', 'Diarrhea'], illnesses: ['Immune-mediated Colitis'], deficiencies: [] },
+                    { id: 'complication_pneumonitis', label: 'Pneumonitis (2.4%)', type: 'illness', description: 'Lung tissue inflammation presenting in 2.4% of patients. Requires immediate biological therapeutic interruption.', symptoms: ['Coughing', 'Dyspnea', 'Chest tightness'], illnesses: ['Pneumonitis'], deficiencies: [] },
+                    { id: 'monitoring', label: 'Surveillance Protocols', type: 'intervention', description: 'Regular diagnostic assessments, contrast CT scans every 9 weeks, AST/ALT liver tests, and thyroid monitoring.', symptoms: [], illnesses: [], deficiencies: [] }
+                ],
+                links: [
+                    { source: 'root', target: 'drug', label: 'Investigates' },
+                    { source: 'drug', target: 'outcome_os', label: 'Achieves' },
+                    { source: 'drug', target: 'outcome_pfs', label: 'Extends' },
+                    { source: 'drug', target: 'outcome_orr', label: 'Induces' },
+                    { source: 'drug', target: 'complication_colitis', label: 'Adverse Risk' },
+                    { source: 'drug', target: 'complication_pneumonitis', label: 'Critical Risk' },
+                    { source: 'root', target: 'monitoring', label: 'Requires' }
+                ]
+            },
+            'pathology': {
+                nodes: [
+                    { id: 'root', label: 'Sarah Jenkins Lab Report', type: 'patient', description: 'Serum biochemistry panel for patient presenting symptoms of endocrine irregularity and hematologic anomalies.', symptoms: ['Fatigue', 'Cold sensitivity'], illnesses: ['Hypothyroidism', 'Anemia'], deficiencies: ['Iron', 'Thyroxine'] },
+                    { id: 'cbc', label: 'Hematology Panel (CBC)', type: 'illness', description: 'Depleted RBC (3.82 x10^6) and low Hemoglobin (11.1 g/dL) showing diagnostic markers of microcytic/normocytic anemia.', symptoms: ['Fatigue', 'Weakness'], illnesses: ['Microcytic Anemia'], deficiencies: ['Systemic Iron Deficiency'] },
+                    { id: 'tsh', label: 'Critical TSH (6.42 uIU/mL)', type: 'deficiency', description: 'Elevated Thyroid Estimating Hormone indicative of subclinical or overt hypothyroidism.', symptoms: ['Cold Intolerance', 'Lethargy'], illnesses: ['Hypothyroidism'], deficiencies: ['Thyroid Hormone Deficiency'] },
+                    { id: 'glucose', label: 'Glucose (104 mg/dL)', type: 'illness', description: 'Mild elevation in fasting blood glucose exceeding the upper reference limit.', symptoms: ['Glucose fluctuation'], illnesses: ['Impaired Fasting Glucose'], deficiencies: [] },
+                    { id: 'ft4', label: 'Free Thyroxine (0.78 ng/dL)', type: 'deficiency', description: 'Depleted Free T4 level, reinforcing diagnostic assessment of primary thyroid hormone deficiency.', symptoms: [], illnesses: ['Primary Hypothyroidism'], deficiencies: ['Thyroxine Deficiency'] },
+                    { id: 'rx', label: 'Levothyroxine Titration', type: 'intervention', description: 'Daily oral administration starting at 25mcg daily to supplement active deficiency. Follow-up lab scheduled in 6 weeks.', symptoms: [], illnesses: [], deficiencies: [] }
+                ],
+                links: [
+                    { source: 'root', target: 'cbc', label: 'Measures' },
+                    { source: 'root', target: 'tsh', label: 'Measures' },
+                    { source: 'root', target: 'glucose', label: 'Measures' },
+                    { source: 'tsh', target: 'ft4', label: 'Correlates With' },
+                    { source: 'tsh', target: 'rx', label: 'Indication for' },
+                    { source: 'ft4', target: 'rx', label: 'Corrected by' }
+                ]
+            },
+            'chest-xray-scan': {
+                nodes: [
+                    { id: 'root', label: 'Simulated Chest X-Ray', type: 'patient', description: 'High-density posterior-anterior view chest radiograph.', symptoms: ['Productive cough', 'Dyspnea'], illnesses: ['Pneumonia Consolidation'], deficiencies: [] },
+                    { id: 'consolidation', label: 'Right Lower Lobe Consolidation', type: 'illness', description: 'Visual area of increased radiographic density on the base of the right lung, suggesting alveolar infiltration.', symptoms: [], illnesses: ['Lobal Pneumonia'], deficiencies: [] },
+                    { id: 'cardiomegaly', label: 'Borderline Cardiomegaly', type: 'illness', description: 'Cardiac silhouette width registers at approximately 52% of the total intrathoracic dimension.', symptoms: [], illnesses: ['Slight Left Ventricular Enlargement'], deficiencies: [] },
+                    { id: 'monitoring', label: '6-Week Radiographic Followup', type: 'intervention', description: 'Mandatory follow-up chest radiograph recommended in 6 weeks to confirm consolidation clearance.', symptoms: [], illnesses: [], deficiencies: [] }
+                ],
+                links: [
+                    { source: 'root', target: 'consolidation', label: 'Visualizes' },
+                    { source: 'root', target: 'cardiomegaly', label: 'Visualizes' },
+                    { source: 'consolidation', target: 'monitoring', label: 'Requires' }
+                ]
+            },
+            'mri-brain-scan': {
+                nodes: [
+                    { id: 'root', label: 'Simulated Brain MRI', type: 'patient', description: 'High-resolution coronal T2-weighted structural resonance scan of the cranium.', symptoms: ['Chronic migraine', 'Focal sensory loss'], illnesses: ['Focal Space Occupying Lesion'], deficiencies: [] },
+                    { id: 'lesion', label: 'Coronal Parietal Lesion', type: 'illness', description: 'Localized hyperintense area observed near the posterior parietal lobe, measuring approx 8mm x 6mm.', symptoms: [], illnesses: ['Parietal Space Occupying Lesion'], deficiencies: [] },
+                    { id: 'edema', label: 'Mild Perilesional Edema', type: 'illness', description: 'Faint visual ring of fluid retention surrounding the focal parietal lesion.', symptoms: [], illnesses: ['Perilesional Fluid Swelling'], deficiencies: [] },
+                    { id: 'contrast', label: 'Gadolinium contrast check', type: 'intervention', description: 'Follow-up structural contrast imaging scheduled to evaluate vascular perfusion and enhancement patterns.', symptoms: [], illnesses: [], deficiencies: [] }
+                ],
+                links: [
+                    { source: 'root', target: 'lesion', label: 'Visualizes' },
+                    { source: 'lesion', target: 'edema', label: 'Correlates With' },
+                    { source: 'lesion', target: 'contrast', label: 'Requires' }
+                ]
+            }
+        };
+
+        // Core App Initializer
+        window.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            
+            // Attempt to retrieve saved API key securely
+            const savedKey = localStorage.getItem('meds_llm_gemini_api_key');
+            if (savedKey) {
+                document.getElementById('gemini-api-key').value = savedKey;
+                geminiAPIKey = savedKey;
+            }
+
+            // Adjust elements size or viewport parameters if on mobile
+            handleResponsiveLayout();
+            window.addEventListener('resize', handleResponsiveLayout);
+
+            // Setup PDF.js web worker path
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+
+            // Drag and drop event listeners
+            const dropzone = document.getElementById('dropzone');
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropzone.addEventListener(eventName, (e) => {
+                    e.preventDefault();
+                    dropzone.classList.add('border-med-teal', 'bg-teal-50/20');
+                }, false);
+            });
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropzone.addEventListener(eventName, (e) => {
+                    e.preventDefault();
+                    dropzone.classList.remove('border-med-teal', 'bg-teal-50/20');
+                }, false);
+            });
+            dropzone.addEventListener('drop', (e) => {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                if (files.length > 0) {
+                    processUploadedFiles(files);
+                }
+            });
+
+            // Initialize mouse zoom and drag listeners for map canvas
+            initMapCanvasControls();
+
+            // Set up click listener for document citations inside chat container
+            document.getElementById('chat-messages-container').addEventListener('click', (e) => {
+                const citeElement = e.target.closest('.clinical-citation');
+                if (citeElement) {
+                    const quote = citeElement.getAttribute('data-quote');
+                    jumpToDocumentSource(quote);
+                }
+            });
+
+            // Load default sample materials to make the sandbox intuitive on start
+            loadSampleReport('clinical-study');
+            loadSampleReport('pathology');
+        });
+
+        // Toggle Responsive View Layouts
+        function handleResponsiveLayout() {
+            const isMobile = window.innerWidth < 768;
+            if (!isMobile) {
+                // Ensure default sidebars are visible on larger desktops
+                document.getElementById('left-sidebar').style.transform = "translateX(0)";
+                document.getElementById('right-chat-sidebar').style.transform = "translateX(0)";
+                document.getElementById('left-sidebar').classList.remove('hidden');
+                document.getElementById('center-viewer-panel').classList.remove('hidden');
+                document.getElementById('right-chat-sidebar').classList.remove('hidden');
+            } else {
+                // Set default mobile viewport tab if not set
+                toggleMobileTab('docs');
+            }
+        }
+
+        // Toggle mobile panels menu
+        function toggleMobileMenu() {
+            const panel = document.getElementById('mobile-nav-panel');
+            panel.classList.toggle('hidden');
+        }
+
+        function switchMobileView(view) {
+            toggleMobileMenu();
+            toggleMobileTab(view);
+        }
+
+        // Handles bottom footer tabs on mobile view
+        function toggleMobileTab(tab) {
+            const leftSidebar = document.getElementById('left-sidebar');
+            const centerViewer = document.getElementById('center-viewer-panel');
+            const rightSidebar = document.getElementById('right-chat-sidebar');
+
+            const tabDocs = document.getElementById('m-tab-docs');
+            const tabViewer = document.getElementById('m-tab-viewer');
+            const tabChat = document.getElementById('m-tab-chat');
+
+            // Reset CSS transforms & visibility
+            leftSidebar.style.transform = "translateX(-100%)";
+            rightSidebar.style.transform = "translateX(100%)";
+            leftSidebar.classList.add('hidden');
+            centerViewer.classList.add('hidden');
+            rightSidebar.classList.add('hidden');
+
+            tabDocs.className = "flex flex-col items-center justify-center text-slate-500";
+            tabViewer.className = "flex flex-col items-center justify-center text-slate-500";
+            tabChat.className = "flex flex-col items-center justify-center text-slate-500";
+
+            if (tab === 'docs') {
+                leftSidebar.classList.remove('hidden');
+                leftSidebar.style.transform = "translateX(0)";
+                tabDocs.className = "flex flex-col items-center justify-center text-med-teal";
+            } else if (tab === 'viewer') {
+                centerViewer.classList.remove('hidden');
+                tabViewer.className = "flex flex-col items-center justify-center text-med-teal";
+            } else if (tab === 'chat') {
+                rightSidebar.classList.remove('hidden');
+                rightSidebar.style.transform = "translateX(0)";
+                tabChat.className = "flex flex-col items-center justify-center text-med-teal";
+                // Read messages, clear dot
+                document.getElementById('unread-chat-dot').classList.add('hidden');
+            }
+        }
+
+        // Trigger Hidden File Upload Form
+        function triggerUpload() {
+            document.getElementById('file-input').click();
+        }
+
+        // Manage file selection changes
+        function handleFileSelect(event) {
+            const files = event.target.files;
+            if (files.length > 0) {
+                processUploadedFiles(files);
+            }
+        }
+
+        // Core processing workflow of files
+        function processUploadedFiles(files) {
+            Array.from(files).forEach(file => {
+                const reader = new FileReader();
+                const fileSizeStr = formatBytes(file.size);
+                
+                if (file.type === "application/pdf" || file.name.endsWith(".pdf")) {
+                    // Extract text contents of PDF locally using pdf.js
+                    reader.onload = async function() {
+                        const typedarray = new Uint8Array(this.result);
+                        try {
+                            const textContent = await extractTextFromPDF(typedarray);
+                            addNewDocument({
+                                id: generateUUID(),
+                                title: file.name.replace(/\.pdf$/i, ''),
+                                filename: file.name,
+                                text: textContent,
+                                size: fileSizeStr,
+                                type: 'pdf',
+                                pdfData: typedarray, // Keep typedarray for active visual render
+                                selectedForContext: true,
+                                metadata: {
+                                    wordCount: textContent.split(/\s+/).filter(Boolean).length,
+                                    uploadDate: new Date().toLocaleDateString()
+                                }
+                            });
+                        } catch (err) {
+                            showFloatingNotification("Could not parse PDF text natively: " + err.message, "error");
+                        }
+                    };
+                    reader.readAsArrayBuffer(file);
+
+                } else if (file.type.startsWith("image/")) {
+                    // Load image directly to canvas and use in layout context
+                    reader.onload = function(e) {
+                        const base64Data = e.target.result;
+                        const genericText = `[Diagnostic Medical Image Payload: ${file.name}]\nFormat: ${file.type}. Meds LLM multimodal vision engine is actively evaluating this diagnostic scan. Ask Meds LLM to generate professional visual findings, assess structural alignment, or map present abnormalities directly in the clinical chat.`;
+                        addNewDocument({
+                            id: generateUUID(),
+                            title: file.name,
+                            filename: file.name,
+                            text: genericText,
+                            size: fileSizeStr,
+                            type: 'image',
+                            imageUrl: base64Data,
+                            selectedForContext: true,
+                            metadata: {
+                                wordCount: 40,
+                                uploadDate: new Date().toLocaleDateString()
+                            }
+                        });
+                    };
+                    reader.readAsDataURL(file);
+
+                } else {
+                    // Treat as standard text file
+                    reader.onload = function(e) {
+                        const textContent = e.target.result;
+                        addNewDocument({
+                            id: generateUUID(),
+                            title: file.name.replace(/\.[^/.]+$/, ""),
+                            filename: file.name,
+                            text: textContent,
+                            size: fileSizeStr,
+                            type: 'text',
+                            selectedForContext: true,
+                            metadata: {
+                                wordCount: textContent.split(/\s+/).filter(Boolean).length,
+                                uploadDate: new Date().toLocaleDateString()
+                            }
+                        });
+                    };
+                    reader.readAsText(file);
+                }
+            });
+        }
+
+        // Helper PDF.js local text processor
+        function extractTextFromPDF(pdfData) {
+            return new Promise((resolve, reject) => {
+                pdfjsLib.getDocument({ data: pdfData }).promise.then(pdf => {
+                    let maxPages = pdf.numPages;
+                    let countPromises = [];
+                    for (let j = 1; j <= maxPages; j++) {
+                        let page = pdf.getPage(j);
+                        countPromises.push(page.then(function(page) {
+                            return page.getTextContent().then(function(textContent) {
+                                let pageStr = textContent.items.map(function(item) {
+                                    return item.str;
+                                }).join(' ');
+                                return `--- Page Break (Page ${j}) ---\n${pageStr}`;
+                            });
+                        }));
+                    }
+                    Promise.all(countPromises).then(function(texts) {
+                        resolve(texts.join('\n\n'));
+                    }).catch(reject);
+                }).catch(reject);
+            });
+        }
+
+        // Format Bytes Size into Readable Labels
+        function formatBytes(bytes, decimals = 2) {
+            if (!+bytes) return '0 Bytes';
+            const k = 1024;
+            const dm = decimals < 0 ? 0 : decimals;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
+        }
+
+        // Incorporate Document to State & DOM
+        function addNewDocument(doc) {
+            // Check if there is a precalculated health map matching this name prefix
+            let associatedSampleKey = null;
+            if (doc.title.toLowerCase().includes("pembrolizumab")) associatedSampleKey = 'clinical-study';
+            if (doc.title.toLowerCase().includes("endocrinology")) associatedSampleKey = 'pathology';
+            if (doc.title.toLowerCase().includes("x-ray")) associatedSampleKey = 'chest-xray-scan';
+            if (doc.title.toLowerCase().includes("mri")) associatedSampleKey = 'mri-brain-scan';
+            
+            if (associatedSampleKey && staticSampleMaps[associatedSampleKey]) {
+                doc.healthMap = JSON.parse(JSON.stringify(staticSampleMaps[associatedSampleKey]));
+            } else {
+                // Instantly generate a heuristic map custom-tailored to this specific uploaded file
+                doc.healthMap = generateHeuristicHealthMap(doc);
+            }
+
+            database.push(doc);
+            renderDocumentList();
+            viewDocument(doc.id);
+            updateDocumentCounters();
+            showFloatingNotification(`"${doc.title}" successfully added.`, "success");
+
+            // On mobile view, show viewer when doc gets loaded
+            if (window.innerWidth < 768) {
+                toggleMobileTab('viewer');
+            }
+        }
+
+        // Populate Document List UI Left Sidebar
+        function renderDocumentList() {
+            const listContainer = document.getElementById('document-list');
+            const emptyPlaceholder = document.getElementById('no-documents-placeholder');
+
+            if (database.length === 0) {
+                emptyPlaceholder.classList.remove('hidden');
+                listContainer.querySelectorAll('.doc-item-element').forEach(el => el.remove());
+                return;
+            }
+
+            emptyPlaceholder.classList.add('hidden');
+            
+            // Clean up existing elements to prevent duplicates
+            listContainer.querySelectorAll('.doc-item-element').forEach(el => el.remove());
+
+            database.forEach(doc => {
+                const docCard = document.createElement('div');
+                docCard.className = `doc-item-element border rounded-lg p-3 transition-all relative ${
+                    selectedDocId === doc.id ? 'border-med-teal bg-teal-50/10 shadow-sm' : 'border-slate-200 bg-white hover:bg-slate-50'
+                }`;
+                docCard.style.cursor = 'pointer';
+
+                // Icon type map
+                let iconHTML = `<i data-lucide="file-text" class="w-4 h-4 text-slate-500"></i>`;
+                if (doc.type === 'pdf') iconHTML = `<i data-lucide="file-text" class="w-4 h-4 text-med-teal"></i>`;
+                if (doc.type === 'image') iconHTML = `<i data-lucide="scan" class="w-4 h-4 text-med-accent animate-pulse"></i>`;
+
+                docCard.innerHTML = `
+                    <div class="flex items-start gap-2.5 font-sans">
+                        <!-- Custom Scope Checkbox -->
+                        <div class="pt-0.5" onclick="event.stopPropagation(); toggleDocSelection('${doc.id}')">
+                            <input 
+                                type="checkbox" 
+                                ${doc.selectedForContext ? 'checked' : ''} 
+                                class="rounded border-slate-300 text-med-teal focus:ring-med-teal w-3.5 h-3.5 cursor-pointer accent-teal-600"
+                            />
+                        </div>
+
+                        <!-- Info Content Section -->
+                        <div class="flex-1 min-w-0" onclick="viewDocument('${doc.id}')">
+                            <h4 class="text-xs font-bold text-slate-800 truncate" title="${doc.title}">${doc.title}</h4>
+                            <div class="flex items-center space-x-2 mt-1 text-[10px] text-slate-400 font-sans">
+                                ${iconHTML}
+                                <span class="truncate max-w-[80px]">${doc.filename || 'Manual'}</span>
+                                <span>•</span>
+                                <span>${doc.size}</span>
+                            </div>
+                        </div>
+
+                        <!-- Close / Remove Button -->
+                        <button 
+                            onclick="event.stopPropagation(); removeDocument('${doc.id}')" 
+                            class="text-slate-400 hover:text-red-500 transition-colors p-1"
+                            title="Remove Document"
+                        >
+                            <i data-lucide="trash" class="w-3.5 h-3.5"></i>
+                        </button>
+                    </div>
+                `;
+
+                listContainer.appendChild(docCard);
+            });
+
+            // Re-instantiate Lucide icons on list change
+            lucide.createIcons();
+        }
+
+        // View single document details in Center Viewer
+        function viewDocument(id) {
+            selectedDocId = id;
+            const doc = database.find(d => d.id === id);
+            
+            if (!doc) {
+                resetViewerState();
+                return;
+            }
+
+            // Update Header Meta
+            document.getElementById('viewer-active-title').innerText = doc.title;
+            document.getElementById('doc-meta-title').innerText = doc.title;
+            document.getElementById('doc-meta-filename').innerText = doc.filename || 'Manual Pasted Input';
+            document.getElementById('doc-meta-size').innerText = doc.size;
+            document.getElementById('doc-meta-words').innerText = `${doc.metadata.wordCount} words`;
+
+            // Reset Sub views
+            document.getElementById('viewer-empty-state').classList.add('hidden');
+            document.getElementById('rendered-document-content').classList.remove('hidden');
+            document.getElementById('pdf-rendering-container').classList.add('hidden');
+            document.getElementById('image-preview-container').classList.add('hidden');
+
+            // Render text body with medical term parsing highlights (simple regex markup)
+            let textToDisplay = doc.text;
+            document.getElementById('doc-text-body').innerHTML = highlightMedicalTerms(textToDisplay);
+
+            // Populate Raw Text/Accessibility Extraction Panel content
+            updatePreviewAccessibilityLayout();
+
+            // Render PDF canvas if PDF object loaded
+            if (doc.type === 'pdf' && doc.pdfData) {
+                document.getElementById('pdf-rendering-container').classList.remove('hidden');
+                loadPDFOnCanvas(doc.pdfData);
+            }
+
+            // Render image preview
+            if (doc.type === 'image' && doc.imageUrl) {
+                document.getElementById('image-preview-container').classList.remove('hidden');
+                document.getElementById('viewer-image-element').src = doc.imageUrl;
+            }
+
+            // Sync visual header mapping indicator
+            document.getElementById('map-target-indicator').innerText = `DIAGNOSTIC NETWORK MAP: ${doc.title.toUpperCase()}`;
+
+            // Ensure Health Map viewport reflects newly viewed doc
+            if (currentViewerTab === 'map') {
+                renderActiveHealthMap();
+            }
+
+            // Refresh sidebar selected card highlighted colors
+            renderDocumentList();
+        }
+
+        // High-fidelity rendering of local PDF via Canvas using PDF.js
+        async function loadPDFOnCanvas(typedArray) {
+            try {
+                const loadingTask = pdfjsLib.getDocument({ data: typedArray });
+                currentPdfObject = await loadingTask.promise;
+                pdfPageNum = 1;
+                pdfTotalPages = currentPdfObject.numPages;
+                
+                document.getElementById('pdf-total-pages').innerText = pdfTotalPages;
+                renderPDFPage();
+            } catch (err) {
+                console.error("PDF.js Render error:", err);
+            }
+        }
+
+        async function renderPDFPage() {
+            if (!currentPdfObject) return;
+            document.getElementById('pdf-current-page').innerText = pdfPageNum;
+
+            try {
+                const page = await currentPdfObject.getPage(pdfPageNum);
+                const scale = 1.25;
+                const viewport = page.getViewport({ scale: scale });
+
+                const canvas = document.getElementById('pdf-canvas');
+                const context = canvas.getContext('2d');
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+
+                const renderContext = {
+                    canvasContext: context,
+                    viewport: viewport
+                };
+                await page.render(renderContext).promise;
+            } catch (err) {
+                console.error("Failed to render PDF page:", err);
+            }
+        }
+
+        function changePDFPage(direction) {
+            if (!currentPdfObject) return;
+            const targetPage = pdfPageNum + direction;
+            if (targetPage >= 1 && targetPage <= pdfTotalPages) {
+                pdfPageNum = targetPage;
+                renderPDFPage();
+            }
+        }
+
+        // Adjust the accessibility preview zoom factor
+        function adjustPreviewZoom(factor) {
+            const nextZoom = previewZoomLevel + factor;
+            if (nextZoom >= 0.5 && nextZoom <= 2.5) {
+                previewZoomLevel = nextZoom;
+                document.getElementById('preview-zoom-indicator').innerText = `${Math.round(nextZoom * 100)}%`;
+                updatePreviewAccessibilityLayout();
+            }
+        }
+
+        // Handle high contrast theme changes
+        function setAccessibilityTheme(theme) {
+            activeContrastTheme = theme;
+            
+            // Clean classes from button toggles
+            document.getElementById('btn-theme-normal').className = "px-2 py-1 rounded hover:bg-slate-200 font-semibold text-slate-700";
+            document.getElementById('btn-theme-dark-yellow').className = "px-2 py-1 rounded hover:bg-slate-200 font-semibold text-slate-700";
+
+            const panel = document.getElementById('preview-accessibility-pane');
+            panel.classList.remove('hc-dark-theme');
+
+            if (theme === 'normal') {
+                document.getElementById('btn-theme-normal').className = "px-2 py-1 rounded bg-white shadow-sm font-bold text-slate-800 border border-slate-200";
+            } else if (theme === 'dark-yellow') {
+                document.getElementById('btn-theme-dark-yellow').className = "px-2 py-1 rounded bg-slate-800 shadow-sm font-bold text-yellow-500 border border-slate-700";
+                panel.classList.add('hc-dark-theme');
+            }
+
+            updatePreviewAccessibilityLayout();
+        }
+
+        // Toggle custom image contrast inversion filters
+        function toggleInvertFilter() {
+            activeInvertFilter = !activeInvertFilter;
+            const btn = document.getElementById('btn-invert-scans');
+            
+            if (activeInvertFilter) {
+                btn.className = "px-2 py-1 bg-teal-500 hover:bg-teal-600 text-white border border-teal-600 rounded text-xs font-bold flex items-center gap-1 shadow-sm";
+                showFloatingNotification("Contrast filter activated.", "info");
+            } else {
+                btn.className = "px-2 py-1 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded text-xs font-bold text-slate-700 flex items-center gap-1";
+                showFloatingNotification("Contrast filter deactivated.", "info");
+            }
+
+            updatePreviewAccessibilityLayout();
+        }
+
+        // Apply Accessibility changes (Zoom, Contrast, and Image filters) to panel contents
+        function updatePreviewAccessibilityLayout() {
+            const doc = database.find(d => d.id === selectedDocId);
+            const emptyState = document.getElementById('acc-empty-state');
+            const textContainer = document.getElementById('acc-text-container');
+            const imageContainer = document.getElementById('acc-image-container');
+            const pdfContainer = document.getElementById('acc-pdf-container');
+
+            textContainer.classList.add('hidden');
+            imageContainer.classList.add('hidden');
+            pdfContainer.classList.add('hidden');
+
+            if (!doc) {
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+
+            // Apply global CSS zoom scale transformations cleanly
+            const zoomPercent = `${previewZoomLevel}`;
+            
+            // Apply Image / PDF inversion filters dynamically
+            const filterClass = activeInvertFilter ? 'invert-filter' : '';
+
+            if (doc.type === 'text' || !doc.type) {
+                textContainer.classList.remove('hidden');
+                textContainer.style.fontSize = `${16 * previewZoomLevel}px`;
+                textContainer.style.lineHeight = `${1.8 * previewZoomLevel}`;
+                textContainer.innerText = doc.text;
+
+            } else if (doc.type === 'image') {
+                imageContainer.classList.remove('hidden');
+                const imgEl = document.getElementById('acc-image-element');
+                imgEl.src = doc.imageUrl;
+                imgEl.className = `max-w-full max-h-[400px] object-contain transition-all duration-200 ${filterClass}`;
+                imgEl.style.transform = `scale(${previewZoomLevel})`;
+
+            } else if (doc.type === 'pdf') {
+                pdfContainer.classList.remove('hidden');
+                
+                // Render pdf onto separate canvas inside the accessibility pane
+                document.getElementById('acc-pdf-total-pages').innerText = pdfTotalPages;
+                document.getElementById('acc-pdf-current-page').innerText = pdfPageNum;
+
+                if (currentPdfObject) {
+                    currentPdfObject.getPage(pdfPageNum).then(page => {
+                        const scale = 1.1 * previewZoomLevel;
+                        const viewport = page.getViewport({ scale: scale });
+                        const canvas = document.getElementById('acc-pdf-canvas');
+                        const context = canvas.getContext('2d');
+
+                        canvas.height = viewport.height;
+                        canvas.width = viewport.width;
+                        canvas.className = `max-w-full shadow-md transition-all duration-200 ${filterClass}`;
+
+                        const renderContext = {
+                            canvasContext: context,
+                            viewport: viewport
+                        };
+                        page.render(renderContext);
+                    });
+                }
+            }
+        }
+
+        // Delete active document
+        function removeDocument(id) {
+            database = database.filter(d => d.id !== id);
+            if (selectedDocId === id) {
+                selectedDocId = null;
+                resetViewerState();
+            }
+            renderDocumentList();
+            updateDocumentCounters();
+            showFloatingNotification("Document removed from workspace.", "info");
+        }
+
+        // Toggle checkbox of document inclusion inside chat context
+        function toggleDocSelection(id) {
+            const doc = database.find(d => d.id === id);
+            if (doc) {
+                doc.selectedForContext = !doc.selectedForContext;
+                renderDocumentList();
+                updateDocumentCounters();
+            }
+        }
+
+        // Include everything
+        function autoSelectAllDocs() {
+            database.forEach(doc => doc.selectedForContext = true);
+            renderDocumentList();
+            updateDocumentCounters();
+            showFloatingNotification("All reports added to chatbot context scope.", "success");
+        }
+
+        // Sync and refresh indicators of loaded documents
+        function updateDocumentCounters() {
+            const count = database.length;
+            const selectedCount = database.filter(d => d.selectedForContext).length;
+            
+            document.getElementById('header-doc-count').innerText = `${count} ${count === 1 ? 'report' : 'reports'}`;
+            document.getElementById('select-counter').innerText = `${selectedCount} Selected`;
+
+            // Active chat scope text descriptor
+            const scopeLabel = document.getElementById('chat-scope-label');
+            if (selectedCount === 0) {
+                scopeLabel.innerText = "No Active Documents Included";
+                scopeLabel.className = "truncate text-slate-400 font-semibold";
+            } else if (selectedCount === count) {
+                scopeLabel.innerText = "All Workspace Reports Active";
+                scopeLabel.className = "truncate text-med-teal font-bold";
+            } else {
+                scopeLabel.innerText = `${selectedCount} Documents Active`;
+                scopeLabel.className = "truncate text-med-accent font-bold";
+            }
+        }
+
+        // Locates citation segments in the active document text, highlights them, and scrolls smoothly.
+        function jumpToDocumentSource(quote) {
+            if (!quote) return;
+            
+            // Switch tab to Interactive Preview first
+            switchViewerTab('formatted');
+            
+            const doc = database.find(d => d.id === selectedDocId);
+            if (!doc) {
+                showFloatingNotification("Please select the corresponding active document first.", "error");
+                return;
+            }
+            
+            const originalText = doc.text;
+            
+            // Escape HTML characters of document text to align with parsed screen representations
+            let htmlBody = originalText.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            let escapedQuote = quote.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            
+            const quoteIndex = htmlBody.toLowerCase().indexOf(escapedQuote.toLowerCase());
+            
+            if (quoteIndex !== -1) {
+                // Fetch exact original casing
+                const exactQuoteText = htmlBody.substring(quoteIndex, quoteIndex + escapedQuote.length);
+                
+                // Construct replacement markup
+                const highlightedHTML = htmlBody.substring(0, quoteIndex) + 
+                    `<mark id="active-source-highlight" class="bg-yellow-200 text-slate-950 font-semibold px-1 rounded shadow-md border-b-2 border-amber-500 animate-pulse transition-all duration-300 inline-block scroll-mt-20">${exactQuoteText}</mark>` + 
+                    htmlBody.substring(quoteIndex + escapedQuote.length);
+                
+                // Re-populate container text block
+                document.getElementById('doc-text-body').innerHTML = highlightMedicalTerms(highlightedHTML);
+                
+                // Scroll safely into viewport
+                setTimeout(() => {
+                    const highlightElem = document.getElementById('active-source-highlight');
+                    if (highlightElem) {
+                        highlightElem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        showFloatingNotification("Scrolled and highlighted source context!", "success");
+                        
+                        // Cease glowing animations after 3 seconds
+                        setTimeout(() => {
+                            highlightElem.classList.remove('animate-pulse');
+                        }, 3000);
+                    }
+                }, 100);
+            } else {
+                showFloatingNotification("Could not find matching exact quote inside document.", "error");
+            }
+        }
+
+        // Clear Viewer canvas panel back to basic placeholder state
+        function resetViewerState() {
+            document.getElementById('viewer-active-title').innerText = "No Document Displayed";
+            document.getElementById('viewer-empty-state').classList.remove('hidden');
+            document.getElementById('rendered-document-content').classList.add('hidden');
+            document.getElementById('pdf-rendering-container').classList.add('hidden');
+            document.getElementById('image-preview-container').classList.add('hidden');
+            document.getElementById('viewport-raw').innerText = "";
+            currentPdfObject = null;
+        }
+
+        // Tab views inside center viewer workspace (Report / Raw / Health Map)
+        function switchViewerTab(tab) {
+            currentViewerTab = tab;
+            const tabBtnFormatted = document.getElementById('tab-btn-formatted');
+            const tabBtnRaw = document.getElementById('tab-btn-raw');
+            const tabBtnMap = document.getElementById('tab-btn-map');
+
+            const viewportFormatted = document.getElementById('viewport-formatted');
+            const viewportRaw = document.getElementById('viewport-raw');
+            const viewportMap = document.getElementById('viewport-map');
+
+            // Reset active button class names
+            tabBtnFormatted.className = "px-2.5 py-1 text-xs font-semibold rounded transition-all";
+            tabBtnRaw.className = "px-2.5 py-1 text-xs font-semibold rounded transition-all";
+            tabBtnMap.className = "px-2.5 py-1 text-xs font-bold rounded transition-all flex items-center gap-1 border border-slate-300";
+
+            viewportFormatted.classList.add('hidden');
+            viewportRaw.classList.add('hidden');
+            viewportMap.classList.add('hidden');
+
+            if (tab === 'formatted') {
+                tabBtnFormatted.classList.add('bg-med-teal', 'text-white', 'shadow-sm');
+                tabBtnRaw.classList.add('bg-slate-100', 'text-slate-600', 'hover:bg-slate-200');
+                tabBtnMap.classList.add('bg-slate-100', 'text-slate-700', 'hover:bg-slate-200');
+                viewportFormatted.classList.remove('hidden');
+            } else if (tab === 'raw') {
+                tabBtnRaw.classList.add('bg-med-teal', 'text-white', 'shadow-sm');
+                tabBtnFormatted.classList.add('bg-slate-100', 'text-slate-600', 'hover:bg-slate-200');
+                tabBtnMap.classList.add('bg-slate-100', 'text-slate-700', 'hover:bg-slate-200');
+                viewportRaw.classList.remove('hidden');
+                updatePreviewAccessibilityLayout();
+            } else if (tab === 'map') {
+                tabBtnMap.classList.add('bg-med-teal', 'text-white', 'border-transparent', 'shadow-sm');
+                tabBtnFormatted.classList.add('bg-slate-100', 'text-slate-600', 'hover:bg-slate-200');
+                tabBtnRaw.classList.add('bg-slate-100', 'text-slate-600', 'hover:bg-slate-200');
+                viewportMap.classList.remove('hidden');
+                
+                // Active render trigger
+                renderActiveHealthMap();
+            }
+        }
+
+        // ==========================================
+        // HEALTH MAP MODULE & INTERACTION LOGIC
+        // ==========================================
+
+        function initMapCanvasControls() {
+            const container = document.getElementById('map-canvas-container');
+            const svg = document.getElementById('health-map-svg');
+
+            if (!container || !svg) return;
+
+            // Wheel zoom handler
+            container.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                const zoomFactor = e.deltaY < 0 ? 1.1 : 0.9;
+                zoomMap(zoomFactor);
+            }, { passive: false });
+
+            // Mouse down / start dragging
+            container.addEventListener('mousedown', (e) => {
+                if (e.target.closest('.map-node')) return; // ignore when clicking node
+                isMapPanning = true;
+                container.classList.replace('cursor-grab', 'cursor-grabbing');
+                mapPanStartX = e.clientX - mapTranslateX;
+                mapPanStartY = e.clientY - mapTranslateY;
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                if (!isMapPanning) return;
+                mapTranslateX = e.clientX - mapPanStartX;
+                mapTranslateY = e.clientY - mapPanStartY;
+                applyMapTransform();
+            });
+
+            window.addEventListener('mouseup', () => {
+                if (isMapPanning) {
+                    isMapPanning = false;
+                    container.classList.replace('cursor-grabbing', 'cursor-grab');
+                }
+            });
+
+            // Mobile Touch Support for Zoom / Drag
+            let initialTouchDist = 0;
+            container.addEventListener('touchstart', (e) => {
+                if (e.touches.length === 1) {
+                    isMapPanning = true;
+                    mapPanStartX = e.touches[0].clientX - mapTranslateX;
+                    mapPanStartY = e.touches[0].clientY - mapTranslateY;
+                } else if (e.touches.length === 2) {
+                    isMapPanning = false;
+                    initialTouchDist = Math.hypot(
+                        e.touches[0].clientX - e.touches[1].clientX,
+                        e.touches[0].clientY - e.touches[1].clientY
+                    );
+                }
+            });
+
+            container.addEventListener('touchmove', (e) => {
+                if (isMapPanning && e.touches.length === 1) {
+                    mapTranslateX = e.touches[0].clientX - mapPanStartX;
+                    mapTranslateY = e.touches[0].clientY - mapPanStartY;
+                    applyMapTransform();
+                } else if (e.touches.length === 2) {
+                    const currentDist = Math.hypot(
+                        e.touches[0].clientX - e.touches[1].clientX,
+                        e.touches[0].clientY - e.touches[1].clientY
+                    );
+                    const factor = currentDist / initialTouchDist;
+                    zoomMap(factor > 1 ? 1.05 : 0.95);
+                    initialTouchDist = currentDist;
+                }
+            });
+
+            container.addEventListener('touchend', () => {
+                isMapPanning = false;
+            });
+        }
+
+        function zoomMap(factor) {
+            const newScale = mapScale * factor;
+            if (newScale >= 0.25 && newScale <= 4) {
+                mapScale = newScale;
+                applyMapTransform();
+            }
+        }
+
+        function resetMapTransform() {
+            mapScale = 1;
+            mapTranslateX = 0;
+            mapTranslateY = 0;
+            applyMapTransform();
+            showFloatingNotification("Health Map viewpoint reset.", "info");
+        }
+
+        function applyMapTransform() {
+            const viewGroup = document.getElementById('map-view-group');
+            if (viewGroup) {
+                viewGroup.setAttribute('transform', `translate(${mapTranslateX}, ${mapTranslateY}) scale(${mapScale})`);
+            }
+        }
+
+        // Render the active parsed Health Map into SVG
+        function renderActiveHealthMap() {
+            const emptyState = document.getElementById('map-empty-state');
+            const svgNodes = document.getElementById('map-nodes-group');
+            const svgLinks = document.getElementById('map-links-group');
+            
+            // Clean active elements
+            svgNodes.innerHTML = "";
+            svgLinks.innerHTML = "";
+            closeNodeInspector();
+
+            const doc = database.find(d => d.id === selectedDocId);
+            if (!doc) {
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            // Heuristic or AI generated map fallback
+            if (!doc.healthMap) {
+                // Generate a lightweight, rule-based heuristic map if not present
+                doc.healthMap = generateHeuristicHealthMap(doc);
+            }
+
+            emptyState.classList.add('hidden');
+
+            const mapData = doc.healthMap;
+            const width = document.getElementById('health-map-svg').clientWidth || 600;
+            const height = document.getElementById('health-map-svg').clientHeight || 500;
+            const centerX = width / 2;
+            const centerY = height / 2;
+
+            // Simple radial tree layout
+            const nodePositions = {};
+            const nodes = mapData.nodes;
+            const links = mapData.links;
+
+            // Set central/patient node
+            const rootNode = nodes.find(n => n.type === 'patient') || nodes[0];
+            if (rootNode) {
+                nodePositions[rootNode.id] = { x: centerX, y: centerY };
+            }
+
+            // Arrange branch nodes in a ring structure
+            const branchNodes = nodes.filter(n => n.id !== rootNode.id);
+            const radius = Math.min(centerX, centerY) * 0.65 || 150;
+
+            branchNodes.forEach((node, idx) => {
+                const angle = (idx * 2 * Math.PI) / branchNodes.length;
+                nodePositions[node.id] = {
+                    x: centerX + radius * Math.cos(angle),
+                    y: centerY + radius * Math.sin(angle)
+                };
+            });
+
+            // Define node colors based on medical category
+            const colors = {
+                'patient': { fill: '#14b8a6', stroke: '#0d9488', text: '#ffffff' }, // Medical Teal
+                'illness': { fill: '#f87171', stroke: '#ef4444', text: '#ffffff' }, // Clinical Red
+                'symptom': { fill: '#f59e0b', stroke: '#d97706', text: '#1e293b' }, // Amber
+                'deficiency': { fill: '#22d3ee', stroke: '#06b6d4', text: '#1e293b' }, // Cyan
+                'intervention': { fill: '#10b981', stroke: '#059669', text: '#ffffff' } // Emerald
+            };
+
+            // 1. Draw connecting link vectors
+            links.forEach(link => {
+                const sourcePos = nodePositions[link.source];
+                const targetPos = nodePositions[link.target];
+
+                if (sourcePos && targetPos) {
+                    const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+                    
+                    // Main line
+                    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                    line.setAttribute('x1', sourcePos.x);
+                    line.setAttribute('y1', sourcePos.y);
+                    line.setAttribute('x2', targetPos.x);
+                    line.setAttribute('y2', targetPos.y);
+                    line.setAttribute('stroke', '#334155');
+                    line.setAttribute('stroke-width', '2');
+                    line.setAttribute('stroke-dasharray', '4 4');
+                    line.className.baseVal = "map-link";
+                    
+                    // Mini relationship labels
+                    if (link.label) {
+                        const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                        text.setAttribute('x', (sourcePos.x + targetPos.x) / 2);
+                        text.setAttribute('y', (sourcePos.y + targetPos.y) / 2 - 5);
+                        text.setAttribute('fill', '#94a3b8');
+                        text.setAttribute('font-size', '9px');
+                        text.setAttribute('font-family', 'monospace');
+                        text.setAttribute('text-anchor', 'middle');
+                        text.textContent = link.label;
+                        group.appendChild(text);
+                    }
+
+                    group.appendChild(line);
+                    svgLinks.appendChild(group);
+                }
+            });
+
+            // 2. Draw active clinical node interactive elements
+            nodes.forEach(node => {
+                const pos = nodePositions[node.id] || { x: centerX, y: centerY };
+                const c = colors[node.type] || colors['symptom'];
+                const radiusSize = node.type === 'patient' ? 32 : 24;
+
+                const nodeGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+                nodeGroup.className.baseVal = "map-node-group";
+                nodeGroup.setAttribute('transform', `translate(${pos.x}, ${pos.y})`);
+                
+                // SVG Outer Circle
+                const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                circle.setAttribute('r', radiusSize);
+                circle.setAttribute('fill', c.fill);
+                circle.setAttribute('stroke', c.stroke);
+                circle.setAttribute('stroke-width', '3');
+                circle.className.baseVal = "map-node";
+                circle.onclick = () => inspectNodeElement(node);
+
+                // SVG Text label clipped inside node
+                const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                label.setAttribute('y', '4');
+                label.setAttribute('fill', c.text);
+                label.setAttribute('font-size', node.type === 'patient' ? '10px' : '9px');
+                label.setAttribute('font-weight', 'bold');
+                label.setAttribute('text-anchor', 'middle');
+                label.setAttribute('pointer-events', 'none');
+                
+                // Wrap long text simply
+                let displayLabel = node.label;
+                if (displayLabel.length > 11) {
+                    displayLabel = displayLabel.substring(0, 9) + '..';
+                }
+                label.textContent = displayLabel;
+
+                // Simple tooltip hover text
+                const title = document.createElementNS("http://www.w3.org/2000/svg", "title");
+                title.textContent = `${node.label} (${node.type.toUpperCase()})\nClick to inspect clinical description.`;
+                nodeGroup.appendChild(title);
+
+                nodeGroup.appendChild(circle);
+                nodeGroup.appendChild(label);
+                svgNodes.appendChild(nodeGroup);
+            });
+
+            applyMapTransform();
+        }
+
+        // Generate heuristic diagnostic nodes if AI Key isn't applied yet
+        function generateHeuristicHealthMap(doc) {
+            const rawText = doc.text.toLowerCase();
+            const nodes = [
+                { id: 'root', label: doc.title, type: 'patient', description: `Automated diagnostic representation of report titled: ${doc.title}.`, symptoms: [], illnesses: [], deficiencies: [] }
+            ];
+            const links = [];
+
+            // Detect keywords to map clinical concerns automatically
+            const rules = [
+                { key: 'carcinoma', label: 'Carcinoma', type: 'illness', desc: 'Malignant cell proliferation detected in tissue specimens.', linkText: 'Indication' },
+                { key: 'anemia', label: 'Anemia', type: 'illness', desc: 'Depleted red blood cell mass or lowered overall systemic oxygenation index.', linkText: 'Secondary Risk' },
+                { key: 'hypothyroidism', label: 'Hypothyroidism', type: 'illness', desc: 'Underactive thyroid functioning leading to endocrine metabolic slowdown.', linkText: 'Indication' },
+                { key: 'fatigue', label: 'Severe Fatigue', type: 'symptom', desc: 'Persistent somatic exhaustion unresponsive to basic circadian rest.', linkText: 'Patient Symptom' },
+                { key: 'colitis', label: 'Immune Colitis', type: 'illness', desc: 'Gastrointestinal mucosal inflammation identified as pathological risk.', linkText: 'Potential Complication' },
+                { key: 'pneumonitis', label: 'Pneumonitis', type: 'illness', desc: 'Inflammatory infiltration of lung alveoli causing breathing irregularities.', linkText: 'Critical Warning' },
+                { key: 'hemoglobin', label: 'Hemoglobin Check', type: 'deficiency', desc: 'Substandard blood gas transport parameters verified in pathology diagnostics.', linkText: 'Lab Defect' },
+                { key: 'thyroxine', label: 'Thyroxine Defect', type: 'deficiency', desc: 'Inadequate thyroid endocrine serum hormone levels.', linkText: 'Deficiency' },
+                { key: 'pembrolizumab', label: 'Pembrolizumab Rx', type: 'intervention', desc: 'Active immuno-oncology monoclonal antibody agent.', linkText: 'Primary Rx' },
+                { key: 'consolidation', label: 'Lobe Density', type: 'illness', desc: 'Radiographic infiltration detected inside the respiratory tract.', linkText: 'Pathology Area' },
+                { key: 'parietal', label: 'Focal Lesion', type: 'illness', desc: 'Focal cranial scan mass highlighted by visual enhancement margin.', linkText: 'Structural Node' }
+            ];
+
+            rules.forEach(rule => {
+                if (rawText.includes(rule.key)) {
+                    const nodeId = `node_${rule.key}`;
+                    nodes.push({
+                        id: nodeId,
+                        label: rule.label,
+                        type: rule.type,
+                        description: rule.desc,
+                        symptoms: rule.type === 'symptom' ? [rule.label] : [],
+                        illnesses: rule.type === 'illness' ? [rule.label] : [],
+                        deficiencies: rule.type === 'deficiency' ? [rule.label] : []
+                    });
+                    links.push({
+                        source: 'root',
+                        target: nodeId,
+                        label: rule.linkText
+                    });
+                }
+            });
+
+            // Prevent empty isolated maps, seed baseline fallback nodes if none triggered
+            if (nodes.length === 1) {
+                nodes.push({ id: 'baseline_1', label: 'General Vitals', type: 'symptom', description: 'Patient reports mild systemic concerns.', symptoms: ['General fatigue'], illnesses: [], deficiencies: [] });
+                nodes.push({ id: 'baseline_2', label: 'Monitoring', type: 'intervention', description: 'Recommended routine secondary clinic monitoring checks.', symptoms: [], illnesses: [], deficiencies: [] });
+                links.push({ source: 'root', target: 'baseline_1', label: 'Displays' });
+                links.push({ source: 'root', target: 'baseline_2', label: 'Next steps' });
+            }
+
+            return { nodes, links };
+        }
+
+        // AI Dynamic Health Map generator (triggers structured JSON mapping with Gemini)
+        async function triggerAIGraphGeneration() {
+            const doc = database.find(d => d.id === selectedDocId);
+            if (!doc) {
+                showFloatingNotification("Please select an active medical report from your library first.", "error");
+                return;
+            }
+
+            const apiBtn = document.getElementById('map-ai-gen-btn');
+            const originalHTML = apiBtn.innerHTML;
+            apiBtn.disabled = true;
+            apiBtn.innerHTML = `<span class="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></span> Mapping Clinical Entities...`;
+
+            const prompt = `Perform clinical surveillance. Read the following medical document and extract a clinical health map mapping out the core diagnosis, symptoms, illnesses, deficiencies, and treatments.
+You must output a single structured JSON response according to the defined schema.
+
+Report contents:
+"${doc.text}"`;
+
+            const schema = {
+                type: "OBJECT",
+                properties: {
+                    nodes: {
+                        type: "ARRAY",
+                        description: "List of mapped medical concept entities",
+                        items: {
+                            type: "OBJECT",
+                            properties: {
+                                id: { type: "STRING" },
+                                label: { type: "STRING", description: "Short descriptive title of this entity (max 15 chars)" },
+                                type: { type: "STRING", enum: ["patient", "illness", "symptom", "deficiency", "intervention"] },
+                                description: { type: "STRING", description: "Detailed 1-2 sentence description of what is inside" },
+                                symptoms: { type: "ARRAY", items: { type: "STRING" }, description: "Specific symptom names associated with this node" },
+                                illnesses: { type: "ARRAY", items: { type: "STRING" }, description: "Associated clinical conditions or diagnoses" },
+                                deficiencies: { type: "ARRAY", items: { type: "STRING" }, description: "Subsequent hormone, blood element, or organic deficiencies" }
+                            },
+                            required: ["id", "label", "type", "description", "symptoms", "illnesses", "deficiencies"]
+                        }
+                    },
+                    links: {
+                        type: "ARRAY",
+                        description: "Connections between nodes",
+                        items: {
+                            type: "OBJECT",
+                            properties: {
+                                source: { type: "STRING", description: "Source node ID" },
+                                target: { type: "STRING", description: "Target node ID" },
+                                label: { type: "STRING", description: "Short relational text like 'Measures', 'Indicates', 'Relieves' (max 15 chars)" }
+                            },
+                            required: ["source", "target", "label"]
+                        }
+                    }
+                },
+                required: ["nodes", "links"]
+            };
+
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiAPIKey}`;
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: prompt }] }],
+                        generationConfig: {
+                            responseMimeType: "application/json",
+                            responseSchema: schema
+                        }
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const jsonText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+                    const parsedMap = JSON.parse(jsonText);
+
+                    // Ensure patient root node exists
+                    if (!parsedMap.nodes.some(n => n.type === 'patient')) {
+                        parsedMap.nodes.unshift({
+                            id: 'root',
+                            label: doc.title,
+                            type: 'patient',
+                            description: 'Main Patient Medical Context Profile',
+                            symptoms: [],
+                            illnesses: [],
+                            deficiencies: []
+                        });
+                        // connect everything to root if links are unanchored
+                        parsedMap.nodes.forEach(n => {
+                            if (n.id !== 'root' && !parsedMap.links.some(l => l.target === n.id || l.source === n.id)) {
+                                parsedMap.links.push({ source: 'root', target: n.id, label: 'Indication' });
+                            }
+                        });
+                    }
+
+                    doc.healthMap = parsedMap;
+                    renderActiveHealthMap();
+                    showFloatingNotification("AI Health Map compiled and rendered successfully!", "success");
+                } else {
+                    throw new Error("API returned non-OK status");
+                }
+            } catch (err) {
+                console.error(err);
+                showFloatingNotification("AI Health Map generation failed. Utilizing heuristic mapping backup.", "error");
+                doc.healthMap = generateHeuristicHealthMap(doc);
+                renderActiveHealthMap();
+            } finally {
+                apiBtn.disabled = false;
+                apiBtn.innerHTML = originalHTML;
+            }
+        }
+
+        // Detailed Node Inspector controls
+        function inspectNodeElement(node) {
+            selectedNodeData = node;
+            const drawer = document.getElementById('node-inspector-drawer');
+            const typeBadge = document.getElementById('node-type-badge');
+            
+            // Set Badge style based on clinical type
+            const badges = {
+                'patient': { text: 'CLINICAL PROFILE', class: 'bg-teal-500 text-white font-sans' },
+                'illness': { text: 'DIAGNOSIS / PATHOLOGY', class: 'bg-red-400 text-white font-sans' },
+                'symptom': { text: 'PATIENT SYMPTOM', class: 'bg-amber-500 text-slate-900 font-sans' },
+                'deficiency': { text: 'ORGANIC DEFICIT', class: 'bg-cyan-400 text-slate-900 font-sans' },
+                'intervention': { text: 'CLINICAL INTERVENTION', class: 'bg-emerald-500 text-white font-sans' }
+            };
+
+            const details = badges[node.type] || { text: 'CONCEPT NODE', class: 'bg-slate-700 text-white font-sans' };
+            typeBadge.innerText = details.text;
+            typeBadge.className = `px-2 py-0.5 text-[9px] font-bold uppercase rounded font-mono ${details.class}`;
+
+            document.getElementById('node-label-title').innerText = node.label;
+            document.getElementById('node-desc-text').innerText = node.description;
+
+            // Render Symptom list tags
+            const symptomBox = document.getElementById('node-symptoms-list');
+            symptomBox.innerHTML = "";
+            if (node.symptoms && node.symptoms.length > 0) {
+                node.symptoms.forEach(sym => {
+                    const tag = document.createElement('span');
+                    tag.className = "text-[10px] bg-amber-900/40 border border-amber-800 text-amber-200 px-2 py-0.5 rounded font-sans";
+                    tag.innerText = sym;
+                    symptomBox.appendChild(tag);
+                });
+            } else {
+                symptomBox.innerHTML = `<span class="text-[10px] text-slate-500 italic">None specified</span>`;
+            }
+
+            // Render Illness list tags
+            const illnessBox = document.getElementById('node-illnesses-list');
+            illnessBox.innerHTML = "";
+            if (node.illnesses && node.illnesses.length > 0) {
+                node.illnesses.forEach(ill => {
+                    const tag = document.createElement('span');
+                    tag.className = "text-[10px] bg-red-900/40 border border-red-800 text-red-200 px-2 py-0.5 rounded font-sans";
+                    tag.innerText = ill;
+                    illnessBox.appendChild(tag);
+                });
+            } else {
+                illnessBox.innerHTML = `<span class="text-[10px] text-slate-500 italic">None specified</span>`;
+            }
+
+            // Slide open drawer
+            drawer.classList.remove('translate-y-full');
+        }
+
+        function closeNodeInspector() {
+            const drawer = document.getElementById('node-inspector-drawer');
+            if (drawer) {
+                drawer.classList.add('translate-y-full');
+            }
+            selectedNodeData = null;
+        }
+
+        // Quick Clinical Report Template presets loaders
+        function loadSampleReport(type) {
+            if (type === 'clinical-study') {
+                addNewDocument({
+                    id: crypto.randomUUID(),
+                    title: "Pembrolizumab Clinical Outcome Summary",
+                    filename: "clinical_trial_summary_pembrolizumab.txt",
+                    text: `--- Page Break (Page 1) ---
+CLINICAL STUDY FINDINGS: EVALUATING PEMBROLIZUMAB IN ADVANCED STAGE ONCOLOGY
+Date of assessment: June 2026
+Lead Investigator: Dr. Helen Thorne, MD, PhD
+
+ABSTRACT & OBJECTIVES:
+This study analyzes the longitudinal survival metrics and adverse incident profile for patients diagnosed with metastatic Non-Small Cell Lung Cancer (NSCLC) harboring high PD-L1 expressing markers (Tumor Proportion Score [TPS] >= 50%) undergoing Pembrolizumab therapy as direct first-line therapeutic baseline.
+
+PATIENT PROFILES & METHODS:
+- Segment Sample Size: 142 clinical subjects with verified advanced-stage carcinoma.
+- Delivery cadence: Pembrolizumab 200mg IV infused once every three consecutive weeks.
+- Evaluation windows: RECIST v1.1 criteria computed by diagnostic contrast CT scan computed every nine weeks.
+
+--- Page Break (Page 2) ---
+KEY STATISTICAL RESULTS:
+1. Overall Survival (OS): Media duration reached 26.3 months, representing a highly viable statistical baseline improvement against standard platinum doublet chemotherapeutic cohorts (typically averaging 14.2 months).
+2. Progression-Free Survival (PFS): Median measured at 10.3 months.
+3. Objective Response Rate (ORR): 44.8% response demonstrated across patients.
+4. Serious Adverse Events (SAEs): Grade 3 or 4 treatment-emergent immunological complications arose in roughly 12% of total subjects, specifically colitis (3.1%) and pneumonitis (2.4%). 
+
+CLINICAL RECOMMENDATIONS & PROTOCOLS:
+Early biological therapeutic interruption is mandatory if symptoms of immune-related pneumonitis present. Continue regular liver panels (AST/ALT) and basic metabolic panels (creatinine, thyroid levels) prior to each infusion cycle.`,
+                    size: "2.1 KB",
+                    type: 'text',
+                    selectedForContext: true,
+                    metadata: {
+                        wordCount: 220,
+                        uploadDate: new Date().toLocaleDateString()
+                    }
+                });
+            } else if (type === 'pathology') {
+                addNewDocument({
+                    id: crypto.randomUUID(),
+                    title: "Endocrinology Serum Lab Pathology Results",
+                    filename: "pathology_lab_report.txt",
+                    text: `--- Page Break (Page 1) ---
+ST. VINCENT MEDICAL BIO-PATHOLOGY CENTER
+Patient Reference: Sarah Jenkins | DOB: 12-Nov-1981
+Order Reference: ORD-9941-A | Date Processed: June 15, 2026
+
+TEST DESCRIPTION          | VALUE RECONCILED  | REFERENCE STANDARD  | STATUS STATUS
+---------------------------------------------------------------------------------
+COMPLETE BLOOD COUNT (CBC):
+White Blood Cells (WBC)   | 4.2 x10^3/uL      | 4.5 - 11.0          | MINOR LOW
+Red Blood Cells (RBC)     | 3.82 x10^6/uL     | 4.20 - 5.40         | ABNORMAL LOW
+Hemoglobin                | 11.1 g/dL         | 12.0 - 15.5         | HIGHLY CRITICAL
+Hematocrit                | 33.4 %            | 37.0 - 48.0         | ABNORMAL LOW
+Mean Corpuscular Vol (MCV)| 87.4 fL           | 80.0 - 100.0        | Normal
+
+--- Page Break (Page 2) ---
+METABOLIC & THYROID PANELS:
+Serum Glucose             | 104 mg/dL         | 70 - 99             | MILD ELEVATION
+Thyroid Stimulating (TSH) | 6.42 uIU/mL       | 0.40 - 4.50         | CRITICAL ELEVATION (HYPOTHYROID)
+Free Thyroxine (FT4)      | 0.78 ng/dL        | 0.80 - 1.80         | MILD DEPLETED VALUE
+Serum Creatinine          | 0.88 mg/dL        | 0.50 - 1.10         | Normal
+
+BIO-PATHOLOGIST DIAGNOSTIC NOTES & SUMMARY:
+RBC profile is microcytic/normocytic indicative of early systemic iron deficiency anemia. TSH levels demonstrate active subclinical thyroid disease, necessitating consistent supplemental medication (e.g., levothyroxine titrated starting at 25mcg daily). Follow up within six weeks to re-evaluate FT4 response.`,
+                    size: "1.8 KB",
+                    type: 'text',
+                    selectedForContext: true,
+                    metadata: {
+                        wordCount: 195,
+                        uploadDate: new Date().toLocaleDateString()
+                    }
+                });
+            } else if (type === 'chest-xray-scan') {
+                // High-fidelity Simulated Chest X-ray SVG base64 resource
+                const xraySVG = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400"><rect width="100%" height="100%" fill="black"/><g stroke="%2322D3EE" stroke-width="1" fill="none" opacity="0.3"><circle cx="200" cy="200" r="190"/><circle cx="200" cy="200" r="140"/><line x1="200" y1="0" x2="200" y2="400"/><line x1="0" y1="200" x2="400" y2="200"/></g><path d="M110 90 C 80 160, 80 240, 150 280 C 160 285, 170 230, 160 180 C 150 120, 130 100, 110 90 Z" fill="%23334155" opacity="0.5" stroke="%2394A3B8" stroke-width="2"/><path d="M290 90 C 320 160, 320 240, 250 280 C 240 285, 230 230, 240 180 C 250 120, 270 100, 290 90 Z" fill="%23334155" opacity="0.5" stroke="%2394A3B8" stroke-width="2"/><ellipse cx="200" cy="220" rx="45" ry="60" fill="%23475569" opacity="0.6" stroke="%2394A3B8" stroke-width="1.5"/><path d="M200 60 L200 280" stroke="%2394A3B8" stroke-width="8" stroke-dasharray="15 5" opacity="0.7"/><g stroke="%2364748B" stroke-width="2" opacity="0.4"><path d="M120 110 Q 160 120, 200 110"/><path d="M110 140 Q 160 150, 200 140"/><path d="M100 170 Q 160 180, 200 170"/><path d="M95 200 Q 160 215, 200 200"/><path d="M280 110 Q 240 120, 200 110"/><path d="M290 140 Q 240 150, 200 140"/><path d="M300 170 Q 240 180, 200 170"/><path d="M305 200 Q 240 215, 200 200"/></g><circle cx="130" cy="230" r="25" fill="%23EF4444" fill-opacity="0.25" stroke="%23EF4444" stroke-width="2" stroke-dasharray="4 2"/><text x="130" y="270" fill="%23EF4444" font-size="10" font-family="sans-serif" text-anchor="middle" font-weight="bold">Abnormal Opacity</text><text x="30" y="40" fill="%2306B6D4" font-size="12" font-family="sans-serif" font-weight="bold">CASE ID: CXR-882</text><text x="350" y="40" fill="%2394A3B8" font-size="14" font-family="sans-serif" font-weight="bold">R</text></svg>`;
+                
+                addNewDocument({
+                    id: crypto.randomUUID(),
+                    title: "Diagnostic Chest X-Ray Scan #CXR-882",
+                    filename: "chest_xray_cxr882.png",
+                    text: `--- Page Break (Page 1) ---
+DIAGNOSTIC RADIOGRAPHY SURVEILLANCE REPORT
+Patient ID: Anonymous #882 | Gender: F | Age: 54
+Procedure Code: XR-CHEST-PA | Date Executed: June 2026
+
+RADIOLOGY INTERPRETATION PROTOCOL:
+Visual assessment displays bilateral lung fields.
+Right Lung: Demonstrates stable volume and clear vesicular patterns. No active consolidations.
+Left Lung: Demonstrates a structured, patchy density/focal area of opacity in the mid-to-lower pulmonary field (as highlighted by red indicator line). This represents possible subsegmental alveolar consolidation/pneumonitis.
+Cardiac Contour: Transverse diameter within standard bounds (CTR < 50%). No cardiomegaly.
+Pleural Spaces: Normal gutters. No blunt angles.
+
+DIAGNOSTIC ASSESSMENT & SUMMARY:
+Suspicious unilateral left lower lung field patchy opacity. Correlate with clinical symptomatic presenting files (such as chronic dry cough or chest soreness) to evaluate subacute biological infection or focal pneumonitis risk.`,
+                    size: "4.8 KB",
+                    type: 'image',
+                    imageUrl: xraySVG,
+                    selectedForContext: true,
+                    metadata: {
+                        wordCount: 154,
+                        uploadDate: new Date().toLocaleDateString()
+                    }
+                });
+            } else if (type === 'mri-brain-scan') {
+                // High-fidelity Simulated Brain MRI SVG base64 resource
+                const mriSVG = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400"><rect width="100%" height="100%" fill="black"/><g stroke="%2322D3EE" stroke-width="1" fill="none" opacity="0.3"><circle cx="200" cy="200" r="190"/><circle cx="200" cy="200" r="140"/><line x1="200" y1="0" x2="200" y2="400"/><line x1="0" y1="200" x2="400" y2="200"/></g><path d="M200 60 C 100 60, 80 120, 80 200 C 80 290, 130 340, 200 340 C 270 340, 320 290, 320 200 C 320 120, 300 60, 200 60 Z" fill="%231E293B" stroke="%2364748B" stroke-width="3"/><path d="M200 80 C 130 80, 110 130, 110 200 C 110 270, 150 310, 200 310 C 250 310, 290 270, 290 200 C 290 130, 270 80, 200 80 Z" fill="%23334155" stroke="%23475569" stroke-dasharray="2 2"/><ellipse cx="200" cy="190" rx="20" ry="40" fill="%231E293B" stroke="%2364748B"/><path d="M150 160 Q 180 180, 200 160 Q 220 180, 250 160" stroke="%23475569" stroke-width="2" fill="none"/><path d="M140 220 C 160 250, 240 250, 260 220" stroke="%23475569" stroke-width="2" fill="none"/><circle cx="240" cy="140" r="18" fill="%23FFFFFF" fill-opacity="0.8" stroke="%2306B6D4" stroke-width="2"/><circle cx="240" cy="140" r="28" fill="none" stroke="%2322D3EE" stroke-width="1.5" stroke-dasharray="4 2"/><text x="240" y="190" fill="%2322D3EE" font-size="10" font-family="sans-serif" text-anchor="middle" font-weight="bold">Hyperintense Lesion</text><text x="30" y="40" fill="%2306B6D4" font-size="12" font-family="sans-serif" font-weight="bold">CASE ID: MRI-091A</text><text x="350" y="40" fill="%2394A3B8" font-size="14" font-family="sans-serif" font-weight="bold">L</text></svg>`;
+                
+                addNewDocument({
+                    id: crypto.randomUUID(),
+                    title: "Diagnostic Brain MRI #MRI-091-A",
+                    filename: "brain_mri_091a.png",
+                    text: `--- Page Break (Page 1) ---
+HIGH-FIELD SYSTEM MAGNETIC RESONANCE REPORT
+Patient Reference: Case #091-A | Clinical Specialty: Neurology
+Scan Sequences: Coronal T2-weighted fluid-attenuated | Date: June 2026
+
+MRI BRAIN DESCRIPTION & STRUCTURES:
+Structural Ventricles: Ventricles display symmetric spacing, no active midline deviation.
+Cerebral Cortex: High structural clarity. However, a localized hyperintense rounded mass is clearly identified near the left posterior parietal region (visualized as bright circular focal mass). 
+Lesion Margin: Measures approximately 12mm x 11mm with surrounding focal perilesional hyperintensity suggesting minor localized edema.
+Vascular status: Cranial arterial flows appear normal.
+
+IMPRESSION / DIAGNOSTIC ASSESSMENT:
+Left parietal hyperintense focal occupying space. Minor edema, no secondary mass shift. Clinical contrast surveillance recommended to rule out focal granuloma or demyelinating anomalies.`,
+                    size: "5.1 KB",
+                    type: 'image',
+                    imageUrl: mriSVG,
+                    selectedForContext: true,
+                    metadata: {
+                        wordCount: 141,
+                        uploadDate: new Date().toLocaleDateString()
+                    }
+                });
+            }
+        }
+
+        // Toggle High Contrast Mode specifically for the Chatbot Sidebar panel
+        function toggleChatHighContrast() {
+            chatHighContrastActive = !chatHighContrastActive;
+            const chatPanel = document.getElementById('right-chat-sidebar');
+            const contrastBtn = document.getElementById('chat-contrast-btn');
+            
+            if (chatHighContrastActive) {
+                chatPanel.classList.add('high-contrast-chat');
+                contrastBtn.className = "px-2 py-1 bg-yellow-400 text-slate-950 font-black rounded text-[10px] flex items-center gap-1 shadow-sm border border-yellow-500 animate-pulse";
+                showFloatingNotification("High Contrast enabled on AI Chatbot.", "info");
+            } else {
+                chatPanel.classList.remove('high-contrast-chat');
+                contrastBtn.className = "px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded text-[10px] font-bold flex items-center gap-1 transition-all";
+                showFloatingNotification("High Contrast disabled on AI Chatbot.", "info");
+            }
+        }
+
+        // Dictation microphone controls for motor support and narration
+        function toggleSpeechRecognition() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                showFloatingNotification("Speech recognition is not supported in this browser environment.", "error");
+                return;
+            }
+
+            if (!recognition) {
+                recognition = new SpeechRecognition();
+                recognition.continuous = false;
+                recognition.interimResults = false;
+                recognition.lang = 'en-US';
+
+                recognition.onstart = () => {
+                    isRecordingSpeech = true;
+                    updateSpeechUI(true);
+                };
+
+                recognition.onresult = (event) => {
+                    const transcript = event.results[0][0].transcript;
+                    const textarea = document.getElementById('chat-input-textarea');
+                    textarea.value = textarea.value ? textarea.value + " " + transcript : transcript;
+                    textarea.focus();
+                };
+
+                recognition.onerror = (event) => {
+                    console.error("Speech recognition error:", event.error);
+                    showFloatingNotification(`Dictation issue: ${event.error}`, "error");
+                    isRecordingSpeech = false;
+                    updateSpeechUI(false);
+                };
+
+                recognition.onend = () => {
+                    isRecordingSpeech = false;
+                    updateSpeechUI(false);
+                };
+            }
+
+            if (isRecordingSpeech) {
+                recognition.stop();
+            } else {
+                recognition.start();
+            }
+        }
+
+        function updateSpeechUI(active) {
+            const micBtn = document.getElementById('mic-record-btn');
+            if (active) {
+                micBtn.className = "bg-red-500 hover:bg-red-600 text-white p-2.5 rounded flex items-center justify-center h-[36px] border border-red-400 animate-pulse";
+                showFloatingNotification("Dictation system listening... Speak clearly.", "info");
+            } else {
+                micBtn.className = "bg-slate-100 hover:bg-slate-200 text-slate-600 p-2.5 rounded flex items-center justify-center h-[36px] border border-slate-200";
+            }
+        }
+
+        // Validate Gemini API Key locally & set connectivity indicators
+        function validateAndSaveAPIKey() {
+            const keyInput = document.getElementById('gemini-api-key').value.trim();
+            
+            if (!keyInput) {
+                showFloatingNotification("Please supply an API Key to register.", "error");
+                return;
+            }
+
+            geminiAPIKey = keyInput;
+            localStorage.setItem('meds_llm_gemini_api_key', keyInput);
+            testGeminiAPIConnection(keyInput);
+        }
+
+        // Send a baseline validation test to Gemini Endpoint
+        async function testGeminiAPIConnection(key) {
+            const indicatorDot = document.getElementById('indicator-dot');
+            const indicatorText = document.getElementById('indicator-text');
+            const indicatorBtn = document.getElementById('connection-indicator-btn');
+
+            indicatorText.innerText = "Connecting...";
+            indicatorDot.className = "w-2.5 h-2.5 rounded-full bg-amber-500 pulse-light shadow";
+
+            try {
+                // Querying gemini-2.5-flash with a simple confirmation prompt
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: "Respond only with: 'Success'" }] }]
+                    })
+                });
+
+                if (response.ok) {
+                    indicatorDot.className = "w-2.5 h-2.5 rounded-full bg-emerald-500 shadow";
+                    indicatorText.innerText = "Connected";
+                    indicatorBtn.className = "flex items-center gap-1.5 px-2.5 py-1.5 rounded bg-emerald-50 border border-emerald-200 text-emerald-700 transition-all duration-300";
+                    showFloatingNotification("Gemini API key validated. Connection active!", "success");
+
+                    // Send active connection note in chatbot logs
+                    appendChatMessage("model", `✅ **System: Meds LLM Connection Established**\n\nYour Gemini 2.5 Flash API Key is validated. The workspace is active and fully optimized for **Clinical Surveillance & Multimodal Scan Interpretation**. You can now analyze diagnostic images, text reports, generate dynamic health maps, and query symptoms.`);
+                } else {
+                    const errData = await response.json();
+                    const errorMessage = errData.error?.message || `Server returned response code ${response.status}`;
+                    throw new Error(errorMessage);
+                }
+            } catch (err) {
+                indicatorDot.className = "w-2.5 h-2.5 rounded-full bg-rose-500 shadow";
+                indicatorText.innerText = "Connection Failed";
+                indicatorBtn.className = "flex items-center gap-1.5 px-2.5 py-1.5 rounded bg-rose-50 border border-rose-200 text-rose-700 transition-all duration-300";
+                showFloatingNotification(`Key Validation failed: ${err.message}`, "error");
+
+                // Explain failed connection in chatbot logs
+                appendChatMessage("model", `❌ **System: Connection Diagnostics Failed**\n\nUnable to reach Gemini API services using the provided credential.\n\n**Diagnostic Error:** \`${err.message}\`\n\n*Please ensure that your key has proper permissions, hasn't reached usage caps, and that your web browser is currently connected to the internet.*`);
+            }
+        }
+
+        // Preset Query Selector
+        function setQueryPreset(promptText) {
+            const textarea = document.getElementById('chat-input-textarea');
+            textarea.value = promptText;
+            textarea.focus();
+        }
+
+        // Chat Form Controls
+        function handleChatKeyDown(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                submitChatMessage();
+            }
+        }
+
+        function clearChatHistory() {
+            chatHistory = [];
+            const container = document.getElementById('chat-messages-container');
+            container.innerHTML = `
+                <div class="flex gap-3 max-w-[85%] font-sans">
+                    <div class="w-7 h-7 rounded-full bg-slate-800 text-white flex items-center justify-center font-bold text-xs shrink-0 font-serif">M</div>
+                    <div class="bg-white border border-slate-200 p-3 rounded-lg rounded-tl-none shadow-sm text-xs md:text-sm text-slate-700 chat-markdown chat-card-bg">
+                        <p><strong>Chat conversation cleared.</strong> Ready for new analytical queries based on your chosen medical documents and scans.</p>
+                    </div>
+                </div>
+            `;
+            showFloatingNotification("Conversation history reset.", "info");
+        }
+
+        // Submit chat message & process LLM query with multimodal support
+        async function submitChatMessage() {
+            const textInput = document.getElementById('chat-input-textarea').value.trim();
+            if (!textInput) return;
+
+            // Display user message in chat feed
+            appendChatMessage("user", textInput);
+            document.getElementById('chat-input-textarea').value = ""; // Clear box
+
+            // Identify active documents for context inclusion
+            const selectedDocs = database.filter(d => d.selectedForContext);
+            
+            // Build the dynamic multimodal parts array
+            let userParts = [];
+
+            // Add standard textual prompt instructions
+            let textContext = "";
+            if (selectedDocs.length > 0) {
+                textContext += `You are performing clinical surveillance. Below are the clinical files and narratives uploaded to your workspace for analytical context:\n\n`;
+                selectedDocs.forEach((doc, i) => {
+                    textContext += `--- [START OF DOCUMENT #${i + 1}: ${doc.title} (Filename: ${doc.filename || 'manual'})] ---\n`;
+                    textContext += doc.text;
+                    textContext += `\n--- [END OF DOCUMENT #${i + 1}] ---\n\n`;
+                });
+                textContext += `Analyze the documents/narratives and any accompanying scan images supplied to answer the following user query. Provide precise clinical reasons and cite relevant page numbers or parts. If the user query is a general clinical or pathological question, address it thoroughly using your deep medical knowledge database.\n\n`;
+            } else {
+                textContext += `No active files loaded in the current workspace context. Answer the following medical query from your general medical knowledge database:\n\n`;
+            }
+
+            textContext += `User Question: ${textInput}`;
+            userParts.push({ text: textContext });
+
+            // Integrate multimodal imaging bytes for any active image scope
+            selectedDocs.forEach(doc => {
+                if (doc.type === 'image' && doc.imageUrl) {
+                    try {
+                        const parts = doc.imageUrl.split(',');
+                        // Extract clinical mime type (e.g. image/png or image/jpeg)
+                        const mime = parts[0].split(';')[0].split(':')[1] || "image/png";
+                        const rawBase64 = parts[1];
+                        
+                        // Append actual image structure to user parts!
+                        userParts.push({
+                            inlineData: {
+                                mimeType: mime,
+                                data: rawBase64
+                            }
+                        });
+                    } catch (e) {
+                        console.error("Failed to parse image bytes for Gemini API transmission", e);
+                    }
+                }
+            });
+
+            // Initialize Gemini API Request
+            const thinkingIndicator = document.getElementById('chat-thinking-indicator');
+            thinkingIndicator.classList.remove('hidden');
+            thinkingIndicator.classList.add('flex');
+
+            try {
+                const apiResponse = await callGeminiAPI(userParts);
+                thinkingIndicator.classList.add('hidden');
+                thinkingIndicator.classList.remove('flex');
+
+                if (apiResponse) {
+                    appendChatMessage("model", apiResponse);
+                    
+                    // On mobile, if chat isn't currently shown, pulse indicator
+                    if (window.innerWidth < 768 && document.getElementById('right-chat-sidebar').classList.contains('hidden')) {
+                        document.getElementById('unread-chat-dot').classList.remove('hidden');
+                    }
+                }
+            } catch (err) {
+                thinkingIndicator.classList.add('hidden');
+                thinkingIndicator.classList.remove('flex');
+                appendChatMessage("model", `⚠️ **Error Querying Gemini API:** ${err.message}. Please verify your key, check network conditions, and retry.`);
+            }
+        }
+
+        // Format and append chat messages dynamically
+        function appendChatMessage(role, content) {
+            const container = document.getElementById('chat-messages-container');
+            const messageRow = document.createElement('div');
+            
+            if (role === 'user') {
+                messageRow.className = "flex gap-3 justify-end";
+                messageRow.innerHTML = `
+                    <div class="bg-med-teal text-white p-3 rounded-lg rounded-tr-none shadow-sm text-xs md:text-sm max-w-[85%] select-text font-sans">
+                        <p class="leading-relaxed whitespace-pre-wrap">${content}</p>
+                    </div>
+                    <div class="w-7 h-7 rounded-full bg-slate-800 text-white flex items-center justify-center font-bold text-xs shrink-0">U</div>
+                `;
+            } else {
+                messageRow.className = "flex gap-3 justify-start font-sans";
+                // Render with markdown parsing utility
+                const formattedText = parseMarkdown(content);
+                messageRow.innerHTML = `
+                    <div class="w-7 h-7 rounded-full bg-slate-800 text-white flex items-center justify-center font-bold text-xs shrink-0 font-serif">M</div>
+                    <div class="bg-white border border-slate-200 p-3 rounded-lg rounded-tl-none shadow-sm text-xs md:text-sm text-slate-700 max-w-[85%] select-text chat-markdown chat-card-bg">
+                        ${formattedText}
+                    </div>
+                `;
+            }
+
+            container.appendChild(messageRow);
+            container.scrollTop = container.scrollHeight; // Auto Scroll down
+            lucide.createIcons();
+        }
+
+        // Minimalist parsing of markdown syntax
+        function parseMarkdown(text) {
+            let html = text;
+
+            // Escape script tags
+            html = html.replace(/<script[^>]*>([\s\S]*?)<\/script>/gi, '');
+
+            // Convert markdown tables
+            html = parseMarkdownTables(html);
+
+            // Bold styling
+            html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            
+            // Subheadings
+            html = html.replace(/^\s*###\s+(.*?)$/gm, '<h3>$1</h3>');
+
+            // Unordered lists
+            html = html.replace(/^\s*[\*\-]\s+(.*?)$/gm, '<li>$1</li>');
+            html = html.replace(/(<li>.*?<\/li>)/gs, '<ul>$1</ul>');
+            // Remove consecutive nested ul blocks
+            html = html.replace(/<\/ul>\s*<ul>/g, '');
+
+            // Parse inline document references format [referencing text](cite:exact quote from document)
+            html = html.replace(/\[([^\]]+)\]\(cite:([^\)]+)\)/gi, (match, visibleText, quote) => {
+                const escapedQuote = quote.replace(/"/g, '&quot;');
+                return `<span class="clinical-citation cursor-pointer border-b-2 border-dashed border-teal-500 hover:border-teal-700 text-teal-600 hover:text-teal-800 font-bold px-0.5 rounded transition-all select-all font-sans" data-quote="${escapedQuote}"><i data-lucide="hash" class="w-3 h-3 inline mr-0.5"></i>${visibleText}</span>`;
+            });
+
+            // Line breaks
+            html = html.replace(/\n/g, '<br>');
+
+            return html;
+        }
+
+        // Helper to parse markdown tables into elegant HTML blocks
+        function parseMarkdownTables(text) {
+            const lines = text.split('\n');
+            let inTable = false;
+            let tableHTML = '';
+            let parsedLines = [];
+
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i].trim();
+                
+                // Matches markdown table syntax (e.g. | col 1 | col 2 |)
+                if (line.startsWith('|') && line.endsWith('|')) {
+                    if (!inTable) {
+                        inTable = true;
+                        tableHTML = '<div class="overflow-x-auto my-2"><table>';
+                    }
+                    
+                    // Skip separation line (e.g. |---|---|)
+                    if (line.includes('---')) continue;
+
+                    const cells = line.split('|').map(c => c.trim()).filter((c, idx, arr) => idx > 0 && idx < arr.length - 1);
+                    const isHeader = !tableHTML.includes('<tbody>') && !tableHTML.includes('<thead>');
+                    
+                    if (isHeader) {
+                        tableHTML += '<thead><tr>';
+                        cells.forEach(cell => tableHTML += `<th>${cell}</th>`);
+                        tableHTML += '</tr></thead><tbody>';
+                    } else {
+                        tableHTML += '<tr>';
+                        cells.forEach(cell => tableHTML += `<td>${cell}</td>`);
+                        tableHTML += '</tr>';
+                    }
+                } else {
+                    if (inTable) {
+                        inTable = false;
+                        tableHTML += '</tbody></table></div>';
+                        parsedLines.push(tableHTML);
+                        tableHTML = '';
+                    }
+                    parsedLines.push(lines[i]);
+                }
+            }
+            if (inTable) {
+                tableHTML += '</tbody></table></div>';
+                parsedLines.push(tableHTML);
+            }
+            return parsedLines.join('\n');
+        }
+
+        // Gemini REST API Caller (gemini-2.5-flash handles multimodal parts natively)
+        async function callGeminiAPI(multimodalParts) {
+            // Append the new turn to the local conversational state structure
+            chatHistory.push({ role: "user", parts: multimodalParts });
+
+            // Truncate history context to keep requests within reasonable bounds
+            if (chatHistory.length > 20) {
+                chatHistory = chatHistory.slice(-20);
+            }
+
+            const systemPrompt = `You are "Meds LLM", a state-of-the-art multimodal clinical assistant, diagnostic scan analyzer, and bio-pathological surveillance system.
+You operate in a highly professional, pristine medical intelligence environment.
+
+Your core rules:
+1. Parse and cross-examine clinical trials, lab values, and discharge narratives.
+2. Review visual diagnostic scans (X-rays, MRI scans, CT scans) provided as images. Analyze pixel densities, highlighted abnormalities, bone alignments, focal masses, structures, and lesion margins with deep clinical accuracy.
+3. Structure diagnostic findings, critical abnormal laboratory parameters, or comparative metrics in elegant markdown tables.
+4. When citing or highlighting a specific fact, phrase, or numeric value directly taken from the active documents, format it as '[phrase to show in answer](cite:exact quote from document)'. Make sure the cited text inside the cite tag matches the document EXACTLY (character-for-character) so that the user interface can highlight it when clicked. Do not use this for every sentence or arbitrarily. Only construct citations when there is a direct, verified baseline quote in the active files.
+5. Answer generic medical queries with precise, structured information from your clinical knowledge base.
+6. Crucial: ALWAYS output a clear, structured diagnostic disclaimer at the bottom of diagnostic answers noting that Meds LLM is an AI-powered decision-support workspace and should be formally audited by a certified physician.`;
+
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiAPIKey}`;
+
+            // Implements retry logic with exponential backoff
+            const maxRetries = 5;
+            let attempt = 0;
+            let delay = 1000;
+
+            while (attempt < maxRetries) {
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            contents: chatHistory,
+                            systemInstruction: { parts: [{ text: systemPrompt }] }
+                        })
+                    });
+
+                    if (response.ok) {
+                        const result = await response.json();
+                        const answerText = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                        if (answerText) {
+                            chatHistory.push({ role: "model", parts: [{ text: answerText }] });
+                            return answerText;
+                        }
+                        throw new Error("No answer generated in response.");
+                    } else {
+                        const errDetails = await response.json();
+                        throw new Error(errDetails.error?.message || `Server responded with status code ${response.status}`);
+                    }
+                } catch (error) {
+                    attempt++;
+                    if (attempt >= maxRetries) {
+                        throw error;
+                    }
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                    delay *= 2; // double wait delay
+                }
+            }
+        }
+
+        // Highlight clinical keywords defensively
+        function highlightMedicalTerms(text) {
+            if (!text) return "";
+            let html = text;
+            
+            const keywords = [
+                "Pembrolizumab", "NSCLC", "carcinoma", "colitis", "pneumonitis", 
+                "Hemoglobin", "TSH", "Thyroxine", "hypothyroidism", "anemia", 
+                "consolidation", "cardiomegaly", "lesion", "edema", "parietal"
+            ];
+            
+            keywords.forEach(word => {
+                const regex = new RegExp(`\\b(${word})\\b`, 'gi');
+                // Ensure we don't match or break inside HTML tags or marks
+                html = html.replace(regex, (match) => {
+                    return `<span class="bg-teal-100 text-teal-800 font-semibold px-1 rounded">${match}</span>`;
+                });
+            });
+            return html;
+        }
+
+        // Manual dialog popups configuration 
+        function showManualEntryModal() {
+            document.getElementById('manual-modal').classList.remove('hidden');
+        }
+
+        function hideManualEntryModal() {
+            document.getElementById('manual-modal').classList.add('hidden');
+            document.getElementById('manual-title').value = "";
+            document.getElementById('manual-text').value = "";
+        }
+
+        function saveManualEntry() {
+            const title = document.getElementById('manual-title').value.trim() || "Manual Diagnostic Report";
+            const text = document.getElementById('manual-text').value.trim();
+            
+            if (!text) {
+                showFloatingNotification("Please enter some clinical text details.", "error");
+                return;
+            }
+            
+            addNewDocument({
+                id: generateUUID(),
+                title: title,
+                filename: "manual_entry.txt",
+                text: text,
+                size: formatBytes(text.length),
+                type: 'text',
+                selectedForContext: true,
+                metadata: {
+                    wordCount: text.split(/\s+/).filter(Boolean).length,
+                    uploadDate: new Date().toLocaleDateString()
+                }
+            });
+            
+            hideManualEntryModal();
+        }
+
+        // Custom visual notifications
+        function showFloatingNotification(message, type = 'info') {
+            const container = document.body;
+            const notification = document.createElement('div');
+            
+            let colorClasses = "bg-slate-800 text-white border-slate-700 font-sans";
+            if (type === 'success') colorClasses = "bg-emerald-800 text-white border-emerald-600 font-sans";
+            if (type === 'error') colorClasses = "bg-rose-900 text-white border-rose-700 font-sans";
+            if (type === 'info') colorClasses = "bg-cyan-900 text-white border-cyan-700 font-sans";
+
+            notification.className = `fixed bottom-20 md:bottom-6 right-6 px-4 py-3 rounded-lg border shadow-xl z-50 text-xs font-semibold flex items-center gap-2 transition-all duration-300 transform translate-y-2 opacity-0 ${colorClasses}`;
+            notification.innerHTML = `
+                <i data-lucide="info" class="w-4 h-4 font-sans"></i>
+                <span>${message}</span>
+            `;
+
+            container.appendChild(notification);
+            lucide.createIcons();
+
+            setTimeout(() => {
+                notification.classList.remove('translate-y-2', 'opacity-0');
+            }, 10);
+
+            setTimeout(() => {
+                notification.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => {
+                    notification.remove();
+                }, 300);
+            }, 4000);
+        }
+    </script>
+</body>
+</html>
