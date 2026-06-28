@@ -1,1 +1,1 @@
-# Meds-llm
+# MedInsight-llm
